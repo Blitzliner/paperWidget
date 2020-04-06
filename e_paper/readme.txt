@@ -21,13 +21,25 @@ sudo nano /boot/config.txt
 
 3. reboot
 
-
+4. install python libs
 sudo apt-get update
 sudp apt-get install libpython-dev python3-rpi.gpio
 sudo apt-get install python3-pip
 pip3 install -U pyserial
 
-
 git clone https://github.com/jarret/raspi-uart-waveshare.git
 
+5. test a basic exmaple from the git
 python3 test_basic.py
+
+
+
+Configure main script to be executed on startup
+1. sudo raspi-config
+   Boot Options->Desktop/CLI select Console Autologin
+2. sudo nano /etc/profile
+   add:
+   sudo python3 /home/pi/Desktop/paperWidget/e_pape/main.py 
+
+or for endless scripts run in the background
+sudo python3 /home/pi/Desktop/paperWidget/e_pape/main.py &
