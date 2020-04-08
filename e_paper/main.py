@@ -2,12 +2,10 @@ from read_image import create_snapshot, image_processing
 from send_image import send_image
 from threading import Timer, Lock
 
-
 class Periodic(object):
     """
     A periodic task running in threading.Timers
     """
-
     def __init__(self, interval, function, *args, **kwargs):
         self._lock = Lock()
         self._timer = None
@@ -49,14 +47,12 @@ def fetch_and_upload_image():
     
     
 def main():
-    seconds = 60*60 #1h
+    seconds = 60*60 # call script every 1h
+    
+    fetch_and_upload_image() # call on start up
     per = Periodic(seconds, fetch_and_upload_image, autostart=True)
     #per.start()
-    #per.stop()
-    
-   # s = sched.scheduler(time.time, time.sleep)
-   # s.enter(30, 1, fetch_and_upload_image)
-   # s.run()   
+    #per.stop() 
     
     
 if __name__ == '__main__':

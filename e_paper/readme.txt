@@ -43,3 +43,18 @@ Configure main script to be executed on startup
 
 or for endless scripts run in the background
 sudo python3 /home/pi/Desktop/paperWidget/e_pape/main.py &
+
+
+SSH aktivieren on Pi:
+0. Set master passwort of pi
+1. sudo nano /etc/ssh/sshd_config 
+"PermitRootLogin" change to:
+PermitRootLogin yes
+2. STRG + O
+   STRG + X
+3. sudo service ssh restart
+
+SSH on Windows
+1. Settings->Optional Feature Install "OpenSSH Client"
+2. CMD: ssh pi@192.168.2.133
+3. CMD: type "yes" and type in password
