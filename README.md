@@ -1,5 +1,5 @@
 # paperWidget
-A electronic e-paper display which is used to display widgets e.g. weather forecast
+An electronic e-paper display which is used to display widgets e.g. weather forecast.
 
 ## Setup the Hardware
 ### Wiring
@@ -63,4 +63,24 @@ PermitRootLogin yes
 
 # Reduction of Power Consumption
 1. deactivate  HDMI
+deactivate:
+    /usr/bin/tvservice -o
+activate
+    /usr/bin/tvservice -p
 2. disable LEDs
+Add following lines to /boot/config.txt:
+    dtparam=act_led_trigger=none
+    dtparam=act_led_activelow=off
+    dtparam=pwr_led_trigger=none
+    dtparam=pwr_led_activelow=off
+3. deactivate Bluetooth 
+Add following line to /boot/config.txt:
+    dtoverlay=disable-bt
+
+
+# TODOs
+- Fix IP Address
+- Add Sever for the settings
+- Apply everything on the Pi Zero
+- Support of 2Bit Images
+-
