@@ -5,12 +5,12 @@ An electronic e-paper display which is used to display widgets for example the w
 ### Wiring
 Raspberry Pi -> E-Ink Display
 
-Pin 1 3.3V	--> 6 - VCC
-GND		--> 5 - GND
-Pin 10 GPIO 15	--> 4 - DOUT
-Pin 8 GPIO 14	--> 3 - DIN
-Pin 7 GPIO 4	--> 2 - WAKE_UP
-Pin 3 GPIO 2	--> 1 - RST
+- Pin 1 3.3V	--> 6 - VCC
+- GND		--> 5 - GND
+- Pin 10 GPIO 15	--> 4 - DOUT
+- Pin 8 GPIO 14	--> 3 - DIN
+- Pin 7 GPIO 4	--> 2 - WAKE_UP
+- Pin 3 GPIO 2	--> 1 - RST
 
 ### Preparation
 1. Edit /boot/cmdline.txt with ```sudo nano /boot/config.txt``` and delete the parameter 
@@ -90,8 +90,8 @@ Please set master passwort of pi first.
    Edit /boot/config.txt with ```sudo nano /boot/config.txt``` and add ```dtoverlay=disable-bt```
 
 # TODOs
-[ ] Use of Pi Zero instead of Pi 3
-[ ] Add Sever for the settings
-[ ] Support of 2Bit Images
-[ ] Support for Uploading images
-[ ] Power savings
+- [ ] Use of Pi Zero instead of Pi 3
+- [ ] Add Sever for the settings
+- [ ] Support of 2Bit Images
+- [ ] Support for Uploading images
+- [ ] Power savings
