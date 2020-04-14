@@ -1,8 +1,5 @@
-
 import time
-
 import RPi.GPIO as GPIO
-
 from waveshare.epaper import EPaper
 from waveshare.epaper import Handshake
 from waveshare.epaper import RefreshAndUpdate
@@ -16,13 +13,18 @@ import os.path
 import numpy as np
 from PIL import Image
 import time
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
+logger = logging.getLogger(__name__)
 
 def _read_image(path):
+    logger.info("Slice image")
     lines = []
     if os.path.isfile(path):
         start_row_px = 0
         img = np.array(Image.open(path))
-        #print(img)
+        
         # iterate over all columns
         for col_idx in range(img.shape[1]):
             #col = img[:,col_idx]
@@ -35,14 +37,13 @@ def _read_image(path):
                     y1 = start_row_px
                     x2 = x1
                     y2 = row_idx+1
-                    #print(x1,y1,x2,y2)
-                    #paper.send(FillRectangle(x1, y1, x2, y2))
                     lines.append([x1,y1,x2,y2])
                     start_row_px = 0
     return lines
                                      
 
 def send_image(path):
+    logger.info("Send Image to E-Paper..")
     start = time.time()
     
     lines = _read_image(path)
@@ -61,8 +62,8 @@ def send_image(path):
         paper.send(RefreshAndUpdate())
         paper.read_responses()
 
-        print(F"Refreshing took {time.time() - start:.3} s") # 13.4 seconds
+        logger.info(F"Refreshing took {time.time() - start:.3} s")
 
 
 if __name__ == '__main__':
-    send_image("/home/pi/Desktop/paperWidget/server/weather.png")
+    send_image("snapshot.png")

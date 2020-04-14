@@ -1,6 +1,12 @@
 import subprocess
 from PIL import Image
+import logging
+import configparser
+import shutil
 
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
+logger = logging.getLogger(__name__)
 
 # install snapshot tool for websites:
 # sudo apt install wkhtmltopdf
@@ -8,21 +14,33 @@ from PIL import Image
 # wkhtmltoimage --height 1200 --width 800 google.com out.png
 # hint all fonts need to be converted to base64 and shall be available for true_font and woff
 # transfonter.org for help converting it
-def create_snapshot(address, height, width, out_path, city='Koblenz', bins=17):
-    address = "{}?city={}&entries={}".format(address, city, bins)
+def create_snapshot(address, parameter, height, width, out_path):
+    for key, value in parameter.items():
+        address += "?{}={}".format(key, value)
+    logger.info("Address: " + address)
+    
+    logger.info("Create snapshot with wkhtmltoimage")
     program = "wkhtmltoimage"
     args = [program, "--height", str(height), "--width", str(width), address, out_path]
-    subprocess.call(args)
-    
+    try: 
+        subprocess.call(args)
+    except FileNotFoundError:
+        logger.error("wkhtmltoimage not found")
+        shutil.copyfile('fallback.jpg', out_path)
+        
+
 def image_processing(image_path):
-     img = Image.open(image_path).convert('L').resize((800, 600))
-     img = img.point(lambda x: 0 if x<128 else 255)
-     img.save(image_path)
-   
+    logger.info("Convert Image to grayscale")
+    img = Image.open(image_path).convert('L').resize((800, 600))
+    img = img.point(lambda x: 0 if x<128 else 255)
+    img.save(image_path)
+
 # test function
 def main():
-    image_path = "weather.png"
-    create_snapshot("manuel-jasch.de/weather-forecast/weather.php", 600, 800, image_path)
+    image_path = "snapshot.png"
+    cfg = configparser.ConfigParser()
+    cfg.read('../apps/weather-forecast/config.cfg')
+    create_snapshot("manuel-jasch.de/weather-forecast/weather.php", cfg['parameter'], 600, 800, image_path)
     image_processing(image_path)
 
 if __name__ == '__main__':

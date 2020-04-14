@@ -1,58 +1,46 @@
 from read_image import create_snapshot, image_processing
 from send_image import send_image
-from threading import Timer, Lock
+from Periodic import Periodic
+import configparser
+import logging
 
-class Periodic(object):
-    """
-    A periodic task running in threading.Timers
-    """
-    def __init__(self, interval, function, *args, **kwargs):
-        self._lock = Lock()
-        self._timer = None
-        self.function = function
-        self.interval = interval
-        self.args = args
-        self.kwargs = kwargs
-        self._stopped = True
-        if kwargs.pop('autostart', True):
-            self.start()
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
+logger = logging.getLogger(__name__)
 
-    def start(self, from_run=False):
-        self._lock.acquire()
-        if from_run or self._stopped:
-            self._stopped = False
-            self._timer = Timer(self.interval, self._run)
-            self._timer.start()
-            self._lock.release()
 
-    def _run(self):
-        self.start(from_run=True)
-        self.function(*self.args, **self.kwargs)
-
-    def stop(self):
-        self._lock.acquire()
-        self._stopped = True
-        self._timer.cancel()
-        self._lock.release()
-        
-
-def fetch_and_upload_image():
-    image_path = "weather.png" # is used to temporary store a image
-        
-    create_snapshot("manuel-jasch.de/weather-forecast/weather.php", 600, 800, image_path)
+def update(general, parameter):
+    image_path = "snapshot.png" # is used to temporary store a image
+    base_address = general['AppBaseAddress']
+    create_snapshot(base_address, parameter, 600, 800, image_path)
     
     image_processing(image_path)
     
     send_image(image_path)
     
-    
+
+def getActiveWidget():
+    cfg = configparser.ConfigParser()
+    cfg.read('../apps/config.cfg')
+    active_app = cfg['general'].get('ActiveApp', None)
+    if active_app is not None:
+        logger.info(F'App "{active_app}" selected')
+        cfg.read(F'../apps/{active_app}/config.cfg')
+        return cfg
+    else:
+        logger.error("No app selected")
+    return None
+
 def main():
-    seconds = 60*60 # call script every 1h
+    cfg = getActiveWidget()
     
-    fetch_and_upload_image() # call on start up
-    per = Periodic(seconds, fetch_and_upload_image, autostart=True)
-    #per.start()
-    #per.stop() 
+    if cfg is not None:
+        refresh_cycle = int(cfg['general']['AppRefreshCycle'])
+        
+        logger.info(F'Run "{cfg["general"]["AppName"]}" every {refresh_cycle/3600}h')
+        
+        update(cfg['general'], cfg['parameter']) # call on start up
+        
+        Periodic(refresh_cycle, update, autostart=True)
     
     
 if __name__ == '__main__':

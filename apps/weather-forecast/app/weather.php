@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<!DOCTYPE html>
 <html>
   <head>
     <link rel="stylesheet" href="weather-icons/css/weather-icons.css">
@@ -131,9 +131,9 @@
         return 'wi wi-owm-'.$id;
     }
     
-    function prepareData($forecast, $entries) {
+    function prepareData($forecast, $bins) {
         $weekday = array('So','Mo','Di','Mi','Do','Fr','Sa');
-        $max_elements = min(count($forecast->list), $entries);
+        $max_elements = min(count($forecast->list), $bins);
         
         for ($i = 0; $i < $max_elements; $i++) { 
             $temp = kelvin2degree($forecast->list[$i]->main->temp);
@@ -141,7 +141,6 @@
             $rain = 0;
             if (property_exists($forecast->list[$i], 'rain')) {
                 if (property_exists($forecast->list[$i]->rain, '3h')) {
-                    //echo $forecast->list[$i]->rain->{'3h'}.'</br>';
                     $rain = round($forecast->list[$i]->rain->{'3h'}, 1);
                 }                
             }
@@ -248,30 +247,32 @@
             }
         }
     }
-    $city = 'Koblenz';
-    $entries = 17;
-    $key = 'ced196bc8e3a084b2fd295eb752d23cd';
+    $city = 'Koblenz'; /* set default value */
+    $bins = 16; /* set default value */
+    $key = '';
     
     if (isset($_GET['city'])) {
         $city = $_GET['city'];
     }
     
-    if (isset($_GET['entries'])) {
-        $entries = $_GET['entries'];
+    if (isset($_GET['bins'])) {
+        $bins = $_GET['bins'];
+        $bins = max(8, min(24, $bins));
     }
     
     if (isset($_GET['key'])) {
         $key = $_GET['key'];
+        
+        $today = responseWeather($city, $key, 'weather');
+        $forecast = responseWeather($city, $key, 'forecast');
+        $data = prepareData($forecast, $bins);
+        
+        $weight = 800;
+        $height = 600;
+    } else {
+       echo "<h1>ERROR: Openweather API key is missing</h1><p>Webadress should look like: weather.php?city=Koblenz&bins=16&key=[ENTER YOUR KEY HERE]</p>";
+       exit();
     }
-    
-    $today = responseWeather($city, $key, 'weather');
-    $forecast = responseWeather($city, $key, 'forecast');
-    $data = prepareData($forecast, $entries);
-    
-    $weight = 800;
-    $height = 600;
-    
-
     ?>
   </head>
   <body>
