@@ -15,8 +15,11 @@ logger = logging.getLogger(__name__)
 # hint all fonts need to be converted to base64 and shall be available for true_font and woff
 # transfonter.org for help converting it
 def create_snapshot(address, parameter, height, width, out_path):
+    params = ""
     for key, value in parameter.items():
-        address += "?{}={}".format(key, value)
+        params += "&{}={}".format(key, value)
+    if len(params) > 0:
+        address += "?" + params[1:]
     logger.info("Address: " + address)
     
     logger.info("Create snapshot with wkhtmltoimage")
