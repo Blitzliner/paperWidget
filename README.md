@@ -46,6 +46,26 @@ sudo python3 /home/pi/Desktop/paperWidget/e_pape/main.py &
 
 # Headless Pi preparation
 The Pi shall be used without GUI. On Startup the main.py script shall be executed. For easier access SSH is set up.
+## Static Ip Address
+Connect to wifi first!
+Get the Gateway Address of wifi and ethernet:
+    route -ne
+Get the domain name server:
+    cat /etc/resolv.conf
+Edit dhcpcd.conf file:
+    sudo nano /etc/dhcpcd.conf
+Add the following lines:
+    interface eth0
+    static ip_address=10.0.0.100
+    static routers=10.0.0.1
+    static domain_name_servers=75.75.75.75 75.75.76.76 2001:558:feed::1 2001:558:feed::2
+
+    interface wlan0
+    static ip_address=10.0.0.99
+    static routers=10.0.0.1
+    static domain_name_servers=75.75.75.75 75.75.76.76 2001:558:feed::1 2001:558:feed::2
+    
+
 ## SSH
 ### Activate on Pi:
 0. Set master passwort of pi
@@ -79,7 +99,6 @@ Add following line to /boot/config.txt:
 
 
 # TODOs
-- Fix IP Address
 - Add Sever for the settings
 - Apply everything on the Pi Zero
 - Support of 2Bit Images
