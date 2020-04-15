@@ -19,12 +19,14 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
 
     def _get_app_ids(self, app_main_path='../apps/'):
         # get all apps        
+        app_main_path = os.path.join(os.path.dirname(__file__), app_main_path)
+
         return [d for d in os.listdir(app_main_path) if os.path.isdir(os.path.join(app_main_path, d))]
         
     def _get_website(self):
         logger.info("Create website from from template and config files")
         # read file structure and config files for building up the website
-        app_main_path = "../apps/"
+        app_main_path = os.path.join(os.path.dirname(__file__), "../apps/")
         
         cfg = configparser.ConfigParser()
         cfg.read(os.path.join(app_main_path, 'config.cfg'))
@@ -77,7 +79,7 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
         
         # write website from template
         website = ""
-        with open('template.html') as file:
+        with open(os.path.join(os.path.dirname(__file__), 'template.html')) as file:
             website = file.read()
             website = website.replace("<INSERT_APPS>", app_str)
             website = website.replace("<INSERT_APP_OPTIONS>", app_options)
@@ -87,15 +89,18 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
     def _update_active_app(self, app_name, config_file='../apps/config.cfg'):
         if len(app_name):
             cfg = configparser.ConfigParser()
-            cfg.read(config_file)
+            script_dir = os.path.dirname(__file__)
+            config_filepath = os.path.join(script_dir, config_file)
+            cfg.read(config_filepath)
             cfg['general']['ActiveApp'] = app_name
-            with open(config_file, 'w') as file:
+            with open(config_filepath, 'w') as file:
                 cfg.write(file)
                 
     def _update_app(self, app_id, query):
         # get config file with the app id
         cfg = configparser.ConfigParser()
-        config_file = os.path.join('../apps', app_id, 'config.cfg')
+        script_dir = os.path.dirname(__file__)
+        config_file = os.path.join(script_dir, '../apps', app_id, 'config.cfg')
         cfg.read(config_file)
         
         for key, value in query.items():
@@ -137,11 +142,11 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
         self.wfile.write(bytes(self._get_website(), "utf8"))
          
     
-def create_server(ip_address="localhost", port=8000):
+def create_server(ip_address="0.0.0.0", port=8000):
     handler = WeatherImageRequestHandler
     server_address = (ip_address, port)
     httpd = HTTPServer(server_address, handler)
-    print("open webbrowser with:\nlocalhost:{}/weather?city=Koblenz&bins=16".format(port))
+    print("open webbrowser with:\n[IP_OF_YOUR_RASPBERRY_PI]:{}".format(port))
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
