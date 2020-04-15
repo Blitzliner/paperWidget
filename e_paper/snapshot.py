@@ -20,8 +20,11 @@ def _image_processing(image_path):
 # hint all fonts need to be converted to base64 and shall be available for true_font and woff
 # transfonter.org for help converting it
 def snap(address, parameter, height, width, out_path, processing=True):
+    params = ""
     for key, value in parameter.items():
-        address += "?{}={}".format(key, value)
+        params += "&{}={}".format(key, value)
+    if len(params) > 0:
+        address += "?" + params[1:]
     logger.info("Address: " + address)
     
     logger.info("Create snapshot with wkhtmltoimage")
