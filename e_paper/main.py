@@ -1,23 +1,21 @@
-from read_image import create_snapshot, image_processing
-from send_image import send_image
-from Periodic import Periodic
+import snapshot
+import epaper
+import periodic
 import configparser
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
 logger = logging.getLogger(__name__)
 
-
-def update(general, parameter):
+def update():
+    cfg = getActiveWidget()
+    general, parameter = cfg['general'], cfg['parameter']
     image_path = "snapshot.png" # is used to temporary store a image
     base_address = general['AppBaseAddress']
-    create_snapshot(base_address, parameter, 600, 800, image_path)
     
-    image_processing(image_path)
+    snapshot.snap(base_address, parameter, 600, 800, image_path)
+    epaper.send(image_path)
     
-    send_image(image_path)
-    
-
 def getActiveWidget():
     cfg = configparser.ConfigParser()
     cfg.read('../apps/config.cfg')
@@ -35,12 +33,13 @@ def main():
     
     if cfg is not None:
         refresh_cycle = int(cfg['general']['AppRefreshCycle'])
-        
         logger.info(F'Run "{cfg["general"]["AppName"]}" every {refresh_cycle/3600}h')
         
-        update(cfg['general'], cfg['parameter']) # call on start up
+        # call on start up
+        update() 
         
-        Periodic(refresh_cycle, update, autostart=True)
+        # todo: refresh cycle is only considered after a restart of the pi
+        periodic.Periodic(refresh_cycle, update, autostart=True)
     
     
 if __name__ == '__main__':

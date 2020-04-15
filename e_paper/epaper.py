@@ -42,7 +42,7 @@ def _read_image(path):
     return lines
                                      
 
-def send_image(path):
+def send(path):
     logger.info("Send Image to E-Paper..")
     start = time.time()
     
@@ -66,4 +66,4 @@ def send_image(path):
 
 
 if __name__ == '__main__':
-    send_image("snapshot.png")
+    send("snapshot.png")
