@@ -105,3 +105,5 @@ Please set master passwort of pi first.
 - [ ] Save last execution and check for new one (save to config.cfg last_executed: timestamp)
 - [ ] Power savings
 - [ ] Build a frame for it
+- [ ] Create extra script for app configuration -> config.py get_available_apps(), get_general(app_id), get_parameter(app_id), get_setting(app_id, setting_name)
+- [ ] support of one other example app e.g. joke of the day
