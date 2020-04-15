@@ -3,6 +3,7 @@ from urllib.parse import urlparse, parse_qs
 import configparser
 import logging
 import os
+import widget
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
 logger = logging.getLogger(__name__)
@@ -129,6 +130,8 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
                 logger.info(F"app id: {app_id}")
                 query = parse_qs(urlparse(self.path).query)
                 self._update_app(app_id, query)
+                # trigger a update of main script # todo refactor
+                widget.update()
                         
         self._set_headers()
         self.wfile.write(bytes(self._get_website(), "utf8"))
