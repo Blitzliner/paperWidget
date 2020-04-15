@@ -32,14 +32,21 @@ console=serial0, 115200 from the line
 5. Test a basic exmaple from the git with ```python3 test_basic.py```
    
 ## Execute Script on Startup
-How to configure main script to be executed on startup?
+How to configure server script to be executed on startup?
 1. Open the rasberry configuration with ```sudo raspi-config``` 
    In the GUI go to Boot Options->Desktop/CLI select Console Autologin
 2. Execute script on start up
    open ```sudo nano /etc/profile``` and add the following line:
-   ```sudo python3 /home/pi/Desktop/paperWidget/e_pape/main.py```
-   or for endless scripts run in the background
-   ```sudo python3 /home/pi/Desktop/paperWidget/e_pape/main.py &```
+   ```sudo python3 /home/pi/Desktop/paperWidget/common/server.py &```
+   The & in the line end is for running the script in background
+A better aLternative with cronjob
+1. Open crontab configuration by ```crontab -e```
+2. Add new line for running server.py and widget.py on startup and execute widget every start of an hour.
+   ```
+   @reboot python3 /home/pi/Desktop/paperWidget/common/server.py &
+   @reboot python3 /home/pi/Desktop/paperWidget/common/widget.py &
+   0 * * * *  python3 /home/pi/Desktop/paperWidget/common/widget.py
+   ```
 
 # Headless Pi preparation
 The Pi shall be used without GUI. On Startup the main.py script shall be executed. For easier access SSH is set up.
@@ -91,7 +98,10 @@ Please set master passwort of pi first.
 
 # TODOs
 - [ ] Use of Pi Zero instead of Pi 3
-- [ ] Add Sever for the settings
+- [x] Add Sever for the settings
 - [ ] Support of 2Bit Images
 - [ ] Support for Uploading images
+- [ ] Preview of Image i grayscale
+- [ ] Save last execution and check for new one (save to config.cfg last_executed: timestamp)
 - [ ] Power savings
+- [ ] Build a frame for it
