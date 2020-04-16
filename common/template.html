@@ -1,6 +1,8 @@
  <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="data:,">
     <script language="javascript">
         function loadAddressInIframe(eventElement) {
             // get form to which the preview belongs to
@@ -158,7 +160,7 @@
   </head>
   <body>
     <div id="main_widget">
-        <form action="general">
+        <form action="general" method="post">
             <fieldset>
                 <legend>General Settings</legend>
                 <label>Select Active App:
@@ -168,8 +170,8 @@
                     <!-- End of App options -->
                 </select></label>
                 <br/><br/><br/>
-                <button class="btn_save" type="submit">Save</button>
-                <form action="update"><button class="btn_preview" type="submit">Update</button></form>
+                <button class="btn_save" name="save" value="save" type="submit">Save</button>
+                <button class="btn_preview" name="update" value="update" type="submit">Update</button>
             </fieldset>
         </form>
         <fieldset>

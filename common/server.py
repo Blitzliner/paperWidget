@@ -24,7 +24,7 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
         return [d for d in os.listdir(app_main_path) if os.path.isdir(os.path.join(app_main_path, d))]
         
     def _get_website(self):
-        logger.info("Create website from from template and config files")
+        logger.info("Create website")
         # read file structure and config files for building up the website
         app_main_path = os.path.join(os.path.dirname(__file__), "../apps/")
         
@@ -45,14 +45,14 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
             app_name = cfg['general'].get('app_name', "AppName")
             
             if (active_app == app_id):
-                logger.info(F"set active app to {active_app}")
+                logger.info(F"Set active app to {active_app}")
                 app_options += F'                    <option value="{app_id}" selected>{app_name}</option>\n'
             else:
                 app_options += F'                    <option value="{app_id}">{app_name}</option>\n'
                 
             app_str += F'            <details>\n'
             app_str += F'                <summary>{app_name}</summary>\n'
-            app_str += F'                <form action="{app_id}">\n'
+            app_str += F'                <form action="{app_id}" method="post">\n'
             app_str += F'                    <button class="btn_save" type="submit">Save</button>\n'
             app_str += F'                    <button class="btn_preview" type="button">Preview</button>\n'
             app_str += F'                    <fieldset>\n'
@@ -99,39 +99,52 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
         cfg.read(config_file)
         
         for key, value in query.items():
-            logger.info(F"update {key} in {config_file} with {value}")
             if cfg.has_option('general', key):
-                cfg.set('general', key, value[0])
+                logger.info(F"Update {key} with {value}")
+                cfg.set('general', key, value)
             elif cfg.has_option('parameter', key):
-                cfg.set('parameter', key, value[0])
+                logger.info(F"Update {key} with {value}")
+                cfg.set('parameter', key, value)
+            else:
+                logger.warning(F"Key not found: {key}")
         
         with open(config_file, 'w') as file:
             cfg.write(file)      
             
     def do_POST(self):
+        # parse the data fields of post
+        length = int(self.headers['Content-Length'])
+        field_data = self.rfile.read(length)
+        fields = parse_qs(field_data)
+        fields = { key.decode(): val[0].decode() for key, val in fields.items() }
+        logger.info(F"Received field keys: {fields.keys()}")
+        
         if '/upload' in self.path:
-            logger.warning('Not yet supported')
+            logger.warning('Not yet supported "upload"')
+        elif '/general' in self.path:
+            if 'save' in fields.keys():
+                logger.info('Button pressed in form "general"->"save"')
+                active_app_name = fields.get('active_app', '')
+                self._update_active_app(active_app_name)
+            elif 'update' in fields.keys():
+                logger.info('Button pressed in form "general"->"update"')
+                widget.update()     
+            else:
+                logger.warning('Should not happen in form "general"!')
+        else:
+            app_ids = self._get_app_ids()
+            if (any([True for id in app_ids if (id in self.path)])):     
+                app_id = self.path.replace('/', '')           
+                logger.info(F"Valid app found: {app_id}")
+                self._update_app(app_id, fields)
+            else:
+                logger.warning('Invalid App Requested!')
         
         self._set_headers()
         self.wfile.write(bytes(self._get_website(), "utf8"))
             
     def do_GET(self):
-        if '/general' in self.path:
-            logger.info('submit form "general"')
-            query = parse_qs(urlparse(self.path).query)
-            active_app_name = query.get('active_app', [''])[0]
-            self._update_active_app(active_app_name)
-        elif '/update' in self.path:
-            widget.update()
-        else:
-            app_ids = self._get_app_ids()
-            if (any([True for id in app_ids if (id in self.path)])):                
-                logger.info(F"Valid app id detected in path: \n{self.path}")
-                app_id = self.path.split('?')[0][1:] # get string before ? and cut the / in front of the string
-                logger.info(F"app id: {app_id}")
-                query = parse_qs(urlparse(self.path).query)
-                self._update_app(app_id, query)
-                      
+        logger.info(F"Website Root is requested")
         self._set_headers()
         self.wfile.write(bytes(self._get_website(), "utf8"))
          
@@ -139,7 +152,7 @@ def create_server(ip_address="0.0.0.0", port=8000):
     handler = WeatherImageRequestHandler
     server_address = (ip_address, port)
     httpd = HTTPServer(server_address, handler)
-    print("open webbrowser with:\n[IP_OF_YOUR_RASPBERRY_PI]:{}".format(port))
+    logger.info(F"Open Browser with: http://192.168.2.133:{port}")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
