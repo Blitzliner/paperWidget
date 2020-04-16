@@ -97,13 +97,20 @@ Please set master passwort of pi first.
    Edit /boot/config.txt with ```sudo nano /boot/config.txt``` and add ```dtoverlay=disable-bt```
 
 # TODOs
+Hardware
 - [ ] Use of Pi Zero instead of Pi 3
-- [x] Add Sever for the settings
-- [ ] Support of 2Bit Images
-- [ ] Support for Uploading images
-- [ ] Preview of Image i grayscale
-- [x] Save last execution and check for new one instead of threading (save to config.cfg last_executed: timestamp)
 - [ ] Power savings
 - [ ] Build a frame for it
+
+Feature
+- [ ] Support of 2Bit Images
+- [ ] Support for Uploading images
+- [ ] Preview of Image in grayscale
+
+Refactor
 - [ ] Create extra script for app configuration -> config.py get_available_apps(), get_general(app_id), get_parameter(app_id), get_setting(app_id, setting_name)
-- [ ] support of one other example app e.g. joke of the day
+
+Done
+- [x] Add Sever for the settings
+- [x] Save last execution and check for new one instead of threading (save to config.cfg last_executed: timestamp)
+- [x] support of one other example app e.g. joke of the day
