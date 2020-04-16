@@ -121,6 +121,8 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
             query = parse_qs(urlparse(self.path).query)
             active_app_name = query.get('active_app', [''])[0]
             self._update_active_app(active_app_name)
+        elif '/update' in self.path:
+            widget.update()
         else:
             app_ids = self._get_app_ids()
             if (any([True for id in app_ids if (id in self.path)])):                
@@ -129,13 +131,10 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
                 logger.info(F"app id: {app_id}")
                 query = parse_qs(urlparse(self.path).query)
                 self._update_app(app_id, query)
-                # trigger a update of main script # todo refactor
-                widget.update()
-                        
+                      
         self._set_headers()
         self.wfile.write(bytes(self._get_website(), "utf8"))
          
-    
 def create_server(ip_address="0.0.0.0", port=8000):
     handler = WeatherImageRequestHandler
     server_address = (ip_address, port)
@@ -147,9 +146,5 @@ def create_server(ip_address="0.0.0.0", port=8000):
         pass
     httpd.server_close()
 
-
-def main():
-    create_server()
-
 if __name__ == '__main__':
-    main()
+    create_server()
