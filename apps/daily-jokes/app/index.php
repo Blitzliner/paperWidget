@@ -17,9 +17,14 @@
     <div id="main_widget">
     
      <?php
-      echo file_get_contents(
+      $txt = file_get_contents(
         'http://www.hahaha.de/witze/zufallswitz.txt.php'
       );
+      //echo $txt;
+      $joke = strstr($txt, '<div id="zufallswitz">');
+      echo $joke;
+      $joke = strstr($joke, '<span id="zufallslink">', true);
+      //echo $joke;
      ?>
     </div>
   </body>
