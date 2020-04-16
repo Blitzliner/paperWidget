@@ -8,7 +8,7 @@
             // get the two fieldsets
             var fields = form.querySelectorAll("fieldset");
             // the first fieldset are the general settings, and the second input is the address
-            var address = fields[0].querySelectorAll("input")[1].value;
+            var address = fields[0].querySelectorAll('input[name="app_base_address"')[0].value;
             console.log("address: " + address);
             // the second fieldset is the parameter list
             var params = fields[1].querySelectorAll("input");

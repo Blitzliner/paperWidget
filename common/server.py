@@ -43,8 +43,6 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
             cfg.read(os.path.join(app_dir, 'config.cfg'))
             app_id = os.path.basename(app_dir)
             app_name = cfg['general'].get('app_name', "AppName")
-            #app_address = cfg['general'].get('AppBaseAddress', "")
-            #app_refresh = int(cfg['general'].get('AppRefreshCycle', "3600"))
             
             if (active_app == app_id):
                 logger.info(F"set active app to {active_app}")
@@ -63,9 +61,6 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
             for key, value in cfg.items('general'):
                 app_str += F'                        <label>{key}: <input type="text" name="{key}" value="{value}"/></label><br/>\n'
                 
-            #app_str += F'                        <label>Name: <input type="text" name="name" value="{app_name}"/></label><br/>\n'
-            #app_str += F'                        <label>Address: <input type="text" name="address" value="{app_address}"/></label><br/>\n'
-            #app_str += F'                        <label>Refresh Cycle: <input type="text" name="refresh" value="{app_refresh}"/></label>\n'
             app_str += F'                    </fieldset>\n'
             app_str += F'                    <fieldset>\n'
             app_str += F'                        <legend>Parameter</legend>\n'
@@ -115,7 +110,6 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
             
     def do_POST(self):
         if '/upload' in self.path:
-            #logger.info('submit form "upload"')
             logger.warning('Not yet supported')
         
         self._set_headers()
