@@ -3,6 +3,7 @@ import epaper
 import periodic
 import configparser
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
 logger = logging.getLogger(__name__)
@@ -18,11 +19,11 @@ def update():
     
 def _getActiveWidget():
     cfg = configparser.ConfigParser()
-    cfg.read('../apps/config.cfg')
+    cfg.read(os.path.join(os.path.dirname(__file__), '../apps/config.cfg'))
     active_app = cfg['general'].get('ActiveApp', None)
     if active_app is not None:
         logger.info(F'App "{active_app}" selected')
-        cfg.read(F'../apps/{active_app}/config.cfg')
+        cfg.read(os.path.join(os.path.dirname(__file__), F'../apps/{active_app}/config.cfg'))
         return cfg
     else:
         logger.error("No app selected")
