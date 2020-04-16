@@ -5,9 +5,14 @@ import logging
 import os
 import cgi
 import widget
+from PIL import Image
 
-logging.basicConfig(level=logging.INFO, filename='server.log', filemode='w', format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
+logging.basicConfig(level=logging.INFO, filename='log.log', format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
 logger = logging.getLogger(__name__)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+logger.addHandler(ch)
+
 
 class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTPRequestHandler):
     def _set_headers(self):
@@ -111,6 +116,7 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
         
         with open(config_file, 'w') as file:
             cfg.write(file)      
+
     def _read_post_query(self):
         # parse the data fields of post
         length = int(self.headers['Content-Length'])
@@ -144,7 +150,7 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
                 logger.error(e)
            
         elif '/general' in self.path:
-            fields = _read_post_query()
+            fields = self. _read_post_query()
             if 'save' in fields.keys():
                 logger.info('Button pressed in form "general"->"save"')
                 active_app_name = fields.get('active_app', '')
@@ -155,7 +161,7 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
             else:
                 logger.warning('Should not happen in form "general"!')
         else:
-            fields = _read_post_query()
+            fields = self._read_post_query()
             app_ids = self._get_app_ids()
             if (any([True for id in app_ids if (id in self.path)])):     
                 app_id = self.path.replace('/', '')           

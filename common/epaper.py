@@ -15,7 +15,7 @@ from PIL import Image
 import time
 import logging
 
-logging.basicConfig(level=logging.INFO, filename='epaper.log', filemode='w', format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
+#logging.basicConfig(level=logging.INFO, filename='epaper.log', filemode='w', format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
 logger = logging.getLogger(__name__)
 
 def _read_image(path):
@@ -27,6 +27,7 @@ def _read_image(path):
         bitmask = img>128
         img[bitmask] = 1
         img[~bitmask] = 0
+        logger.info(F"Slice Image with size {img.shape}")
 
         #if len(img[0,0]) == 3:
         #    logger.error("wrong image format it has to be grayscale")
@@ -36,23 +37,28 @@ def _read_image(path):
             for row_idx in range(img.shape[0]):
                 val = img[row_idx, col_idx]
                 if not start_row_px and not val: # start of line detected
-                    start_row_px = row_idx + 1
+                    start_row_px = row_idx
                 if start_row_px and val: # end of line detected
-                    x1 = col_idx+1
+                    x1 = col_idx
                     y1 = start_row_px
                     x2 = x1
-                    y2 = row_idx+1
+                    y2 = row_idx
                     lines.append([x1,y1,x2,y2])
                     start_row_px = 0
+    if len(lines) > 20000:
+        logger.warning(F"Image is maybe to detailed. Too many lines are generated ({len(lines)})")
+        lines = lines[:20000]
+
     return lines
-                                     
+
 
 def send(path):
     logger.info("Send Image to E-Paper..")
     start = time.time()
-    
+
     lines = _read_image(path)
-        
+    logger.info(F"Splitte Image to {len(lines)} lines")
+
     with EPaper() as paper:
         paper.send(Handshake())
         time.sleep(2)
@@ -60,10 +66,12 @@ def send(path):
         paper.send(SetCurrentDisplayRotation(SetCurrentDisplayRotation.FLIP))
         paper.send(SetEnFontSize(SetEnFontSize.THIRTYTWO))
         paper.read_responses(timeout=10)
-    
-        for line in lines:
+
+        for idx, line in enumerate(lines):
             paper.send(FillRectangle(*line))
-            
+            #if idx%2000==0:
+            #    time.sleep(1)
+
         paper.send(RefreshAndUpdate())
         paper.read_responses()
 

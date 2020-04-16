@@ -5,13 +5,18 @@ import logging
 import os
 from datetime import datetime
 
-logging.basicConfig(level=logging.INFO, filename='widget.log', filemode='w', format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
+logging.basicConfig(level=logging.INFO, filename='log.log', format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
 logger = logging.getLogger(__name__)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+logger.addHandler(ch)
 
 def update(image_path=""):
     if len(image_path) > 0:            
+        logger.info("Update Display with image path")
         epaper.send(image_path)
     else:
+        logger.info("Update Display with snapshot of a website")
         cfg = _getActiveWidget()
         general, parameter = cfg['general'], cfg['parameter']
         image_path = "snapshot.png" # is used to temporary store a image
