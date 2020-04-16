@@ -102,7 +102,7 @@ Please set master passwort of pi first.
 - [ ] Support of 2Bit Images
 - [ ] Support for Uploading images
 - [ ] Preview of Image i grayscale
-- [ ] Save last execution and check for new one (save to config.cfg last_executed: timestamp)
+- [x] Save last execution and check for new one instead of threading (save to config.cfg last_executed: timestamp)
 - [ ] Power savings
 - [ ] Build a frame for it
 - [ ] Create extra script for app configuration -> config.py get_available_apps(), get_general(app_id), get_parameter(app_id), get_setting(app_id, setting_name)
