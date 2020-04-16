@@ -104,13 +104,13 @@ Hardware
 
 Feature
 - [ ] Support of 2Bit Images
-- [ ] Support for Uploading images
 - [ ] Preview of Image in grayscale
 
 Refactor
 - [ ] Create extra script for app configuration -> config.py get_available_apps(), get_general(app_id), get_parameter(app_id), get_setting(app_id, setting_name)
 
 Done
+- [x] Support for Uploading images but still problems with too many lines
 - [x] Add Sever for the settings
 - [x] Save last execution and check for new one instead of threading (save to config.cfg last_executed: timestamp)
 - [x] support of one other example app e.g. joke of the day
