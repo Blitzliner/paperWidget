@@ -3,6 +3,7 @@ from urllib.parse import urlparse, parse_qs
 import configparser
 import logging
 import os
+import cgi
 import widget
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
@@ -110,18 +111,35 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
         
         with open(config_file, 'w') as file:
             cfg.write(file)      
-            
-    def do_POST(self):
+    def _read_post_query(self):
         # parse the data fields of post
         length = int(self.headers['Content-Length'])
         field_data = self.rfile.read(length)
         fields = parse_qs(field_data)
         fields = { key.decode(): val[0].decode() for key, val in fields.items() }
         logger.info(F"Received field keys: {fields.keys()}")
+        return fields
         
+    def do_POST(self):
         if '/upload' in self.path:
-            logger.warning('Not yet supported "upload"')
+            ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
+            try:
+                if ctype == 'multipart/form-data':  
+                    fs = cgi.FieldStorage( fp = self.rfile, headers = self.headers, environ={ 'REQUEST_METHOD':'POST' })
+                    fs_up = fs['upload'] # get content of form input with name "upload"
+                    filepath = os.path.join(os.path.dirname(__file__), 'upload.png')
+                    logger.info(F"Upload image to {filepath}")
+                    with open(filepath, 'wb') as file:
+                        file.write(fs_up.file.read())
+                        
+                    widget.update(filepath)
+                else: 
+                    logger.error("Unexpected POST request")
+            except Exception as e:
+                logger.error(e)
+           
         elif '/general' in self.path:
+            fields = _read_post_query()
             if 'save' in fields.keys():
                 logger.info('Button pressed in form "general"->"save"')
                 active_app_name = fields.get('active_app', '')
@@ -132,6 +150,7 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
             else:
                 logger.warning('Should not happen in form "general"!')
         else:
+            fields = _read_post_query()
             app_ids = self._get_app_ids()
             if (any([True for id in app_ids if (id in self.path)])):     
                 app_id = self.path.replace('/', '')           
