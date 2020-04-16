@@ -1,7 +1,6 @@
  <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" href="font_style.css">
     <style type="text/css">    
     #main_widget {
         position: relative;
