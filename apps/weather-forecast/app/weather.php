@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
     <link rel="stylesheet" href="weather-icons/css/weather-icons.css">
     <link rel="stylesheet" href="font_style.css">
     <style type="text/css">    

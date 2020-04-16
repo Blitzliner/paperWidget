@@ -1,6 +1,7 @@
  <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
     <style type="text/css">    
     #main_widget {
         position: relative;
@@ -47,7 +48,7 @@
         
         $joke = get_joke();
         $font_size = fit_font_size($joke, 16, 600, 800);
-        print_joke($font_size, $font_size);
+        print_joke($font_size, $joke);
      ?>
     </div>
   </body>
