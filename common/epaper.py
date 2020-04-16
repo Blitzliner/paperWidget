@@ -23,8 +23,13 @@ def _read_image(path):
     lines = []
     if os.path.isfile(path):
         start_row_px = 0
-        img = np.array(Image.open(path))
-        
+        img = np.array(Image.open(path).convert('L').resize((800, 600))).astype(np.uint8)
+        bitmask = img>128
+        img[bitmask] = 1
+        img[~bitmask] = 0
+
+        #if len(img[0,0]) == 3:
+        #    logger.error("wrong image format it has to be grayscale")
         # iterate over all columns
         for col_idx in range(img.shape[1]):
             #col = img[:,col_idx]
