@@ -1,9 +1,9 @@
 import snapshot
 import epaper
-import periodic
 import configparser
 import logging
 import os
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
 logger = logging.getLogger(__name__)
@@ -16,6 +16,29 @@ def update():
     
     snapshot.snap(base_address, parameter, 600, 800, image_path)
     epaper.send(image_path)
+    _update_timestamp()
+
+def _update_timestamp():
+    timestamp = datetime.timestamp(datetime.now())
+    config_filepath = os.path.join(os.path.dirname(__file__), '../apps/config.cfg')
+    cfg = configparser.ConfigParser()
+    cfg.read(config_filepath)
+    cfg['general']['last_execution'] = str(int(timestamp))
+    with open(config_filepath, 'w') as file:
+        cfg.write(file) 
+        
+def _get_last_execution():
+    config_filepath = os.path.join(os.path.dirname(__file__), '../apps/config.cfg')
+    cfg = configparser.ConfigParser()
+    cfg.read(config_filepath)
+    timestamp = cfg['general'].get('last_execution', "")
+    
+    if len(timestamp) == 0:
+        timestamp = int(0)
+    else:
+        timestamp = int(timestamp)
+    
+    return timestamp
     
 def _getActiveWidget():
     cfg = configparser.ConfigParser()
@@ -30,25 +53,26 @@ def _getActiveWidget():
     return None
 
 def _get_refresh_cycle():
-    refresh_cycle = 3600
+    refresh_cycle = int(1)
     cfg = _getActiveWidget()
     
     if cfg is not None:
         refresh_cycle = int(cfg['general']['app_refresh_cycle'])
-        logger.info(F'Run "{cfg["general"]["app_name"]}" every {refresh_cycle/3600}h')
+        logger.info(F'Run "{cfg["general"]["app_name"]}" every {refresh_cycle}h')
         
     return refresh_cycle
     
 def _main():
-    refresh_cycle = _get_refresh_cycle()
-    
-    # call on start up
-    update() 
-    
-    # todo: refresh cycle is only considered after a restart of the pi
-    periodic.Periodic(refresh_cycle, update, autostart=True)
+    cycle = _get_refresh_cycle()*3600 - 100 # convert to seconds minus some safety seconds
+    last_run = _get_last_execution()
+    current = int(datetime.timestamp(datetime.now()))
+    logger.info(F"cycle: {cycle}, last run: {last_run}, current: {current} delta: {current - last_run}")
+    if ((current - last_run) > cycle):
+        logger.info("Update")
+        update() 
+    else:
+        logger.info("Skip update nothing to do")
     
     
 if __name__ == '__main__':
-    #_main()
-    update() 
+    _main() 
