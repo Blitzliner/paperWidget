@@ -5,7 +5,7 @@ import logging
 import os
 from datetime import datetime
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
+logging.basicConfig(level=logging.INFO, filename='widget.log', filemode='w', format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
 logger = logging.getLogger(__name__)
 
 def update(image_path=""):

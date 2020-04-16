@@ -6,7 +6,7 @@ import os
 import cgi
 import widget
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
+logging.basicConfig(level=logging.INFO, filename='server.log', filemode='w', format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
 logger = logging.getLogger(__name__)
 
 class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTPRequestHandler):
