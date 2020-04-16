@@ -131,7 +131,12 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTP
                     logger.info(F"Upload image to {filepath}")
                     with open(filepath, 'wb') as file:
                         file.write(fs_up.file.read())
-                        
+
+                    logger.info("Convert Image to grayscale")
+                    img = Image.open(filepath).convert('L').resize((800, 600))
+                    img = img.point(lambda x: 0 if x<128 else 255)
+                    img.save(filepath)
+                    
                     widget.update(filepath)
                 else: 
                     logger.error("Unexpected POST request")
