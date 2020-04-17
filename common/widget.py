@@ -1,29 +1,36 @@
 import snapshot
-import epaper
+import sys
+if not sys.platform.startswith('win'):
+    import epaper
 import configparser
 import logging
+import logging.config
 import os
 from datetime import datetime
 
-logging.basicConfig(level=logging.INFO, filename='log.log', format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
+logging.config.fileConfig(os.path.join(os.path.dirname(__file__), 'logging.ini'), disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-logger.addHandler(ch)
 
 def update(image_path=""):
     if len(image_path) > 0:            
         logger.info("Update Display with image path")
-        epaper.send(image_path)
+        
+        if not sys.platform.startswith('win'):
+            epaper.send(image_path)
+        else:
+            logger.error("Sending to e-paper is yet not supported on Windows")
     else:
         logger.info("Update Display with snapshot of a website")
         cfg = _getActiveWidget()
         general, parameter = cfg['general'], cfg['parameter']
-        image_path = "snapshot.png" # is used to temporary store a image
+        image_path = os.path.join(os.path.dirname(__file__), "snapshot.png") # is used to temporary store a image
         base_address = general['app_base_address']
         
         snapshot.snap(base_address, parameter, 600, 800, image_path)
-        epaper.send(image_path)
+        if not sys.platform.startswith('win'):        
+            epaper.send(image_path)
+        else:
+            logger.error("Sending to e-paper is yet not supported on Windows")
         _update_timestamp()
 
 def _update_timestamp():

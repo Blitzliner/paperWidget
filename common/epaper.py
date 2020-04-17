@@ -14,8 +14,10 @@ import numpy as np
 from PIL import Image
 import time
 import logging
+import logging.config
+import os
 
-#logging.basicConfig(level=logging.INFO, filename='epaper.log', filemode='w', format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
+logging.config.fileConfig(os.path.join(os.path.dirname(__file__), 'logging.ini'), disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 def _read_image(path, max_width=800, max_height=600):

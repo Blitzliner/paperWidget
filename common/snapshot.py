@@ -1,10 +1,12 @@
 import subprocess
 from PIL import Image
 import logging
+import logging.config
 import configparser
 import shutil
+import os
 
-#logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
+logging.config.fileConfig(os.path.join(os.path.dirname(__file__), 'logging.ini'), disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 def _image_processing(image_path):
@@ -34,14 +36,14 @@ def snap(address, parameter, height, width, out_path, processing=True):
         subprocess.call(args)
     except FileNotFoundError:
         logger.error("wkhtmltoimage not found")
-        shutil.copyfile('fallback.jpg', out_path)
+        shutil.copyfile(os.path.join(os.path.dirname(__file__), 'fallback.jpg'), out_path)
     
     if processing:
         _image_processing(out_path)
         
 
 if __name__ == '__main__':
-    image_path = "snapshot.png"
+    image_path = os.path.join(os.path.dirname(__file__), "snapshot.png")
     cfg = configparser.ConfigParser()
     cfg.read('../apps/weather-forecast/config.cfg')
     snap("manuel-jasch.de/weather-forecast/weather.php", cfg['parameter'], 600, 800, image_path)
