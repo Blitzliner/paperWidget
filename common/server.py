@@ -2,17 +2,14 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 import configparser
 import logging
+import logging.config
 import os
 import cgi
 import widget
 from PIL import Image
 
-logging.basicConfig(level=logging.INFO, filename='log.log', format='%(asctime)s %(levelname)s (%(name)s): %(message)s')
+logging.config.fileConfig(os.path.join(os.path.dirname(__file__), 'logging.ini'), disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-logger.addHandler(ch)
-
 
 class WeatherImageRequestHandler(BaseHTTPRequestHandler):#http.server.SimpleHTTPRequestHandler):
     def _set_headers(self):
@@ -182,7 +179,7 @@ def create_server(ip_address="0.0.0.0", port=8000):
     handler = WeatherImageRequestHandler
     server_address = (ip_address, port)
     httpd = HTTPServer(server_address, handler)
-    logger.info(F"Open Browser with: http://192.168.2.133:{port}")
+    logger.info(F"Open Browser: http://192.168.2.133:{port}")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
