@@ -47,6 +47,8 @@ A better aLternative with cronjob
    @reboot python3 /home/pi/Desktop/paperWidget/common/widget.py &
    0 * * * *  python3 /home/pi/Desktop/paperWidget/common/widget.py
    ```
+ 3. Add addtional line for resolving connection problems with ssh
+   ```@reboot sudo service ssh restart```
 
 # Headless Pi preparation
 The Pi shall be used without GUI. On Startup the main.py script shall be executed. For easier access SSH is set up.
@@ -103,7 +105,8 @@ Hardware
 - [ ] Build a frame for it
 
 Feature
-- [ ] Support of 2Bit Images
+- [ ] Support of 2Bit Images -> Update would take too long
+An update of Image with 40000 lines takes 66 seconds.
 - [ ] Preview of Image in grayscale
 
 Refactor
