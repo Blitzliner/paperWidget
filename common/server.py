@@ -106,8 +106,10 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):
             app = config.get_app(app_id)
 
             if app:
+                params = self._read_post_query()
                 logger.info(F"Valid app found: {app_id}")
-                app.parameter = self._read_post_query()
+                app.parameter = params
+                app.general = params
             else:
                 logger.warning('Invalid App Requested! app_id: {app_id}')
 
@@ -133,4 +135,8 @@ def create_server(ip_address="0.0.0.0", port=8000):
 
 
 if __name__ == '__main__':
-    create_server()
+    try:
+        create_server()
+    except ConnectionAbortedError:
+        logger.error("Shit happens", exc_info=True)
+        create_server()

@@ -72,12 +72,11 @@ class App:
 
     def _update(self, section, key, value):
         last_value = self._read(section, key)
-        if last_value != value:
+        if last_value != value and self._config.has_option(section, key):
             with open(self._config_path, 'w') as file:
                 logger.info(F"Update {section}/{key} with {value}")
-                if self._config.has_option(section, key):
-                    self._config.set(section, key, value)
-                    self._config.write(file)
+                self._config.set(section, key, value)
+                self._config.write(file)
 
     def _read(self, section, key, fallback=""):
         return self._config.get(section, key, fallback=fallback)
