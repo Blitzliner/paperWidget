@@ -51,7 +51,20 @@ A better aLternative with cronjob
    ```@reboot sudo service ssh restart```
 
 # Headless Pi preparation
-The Pi shall be used without GUI. On Startup the main.py script shall be executed. For easier access SSH is set up.
+The Pi shall be used without GUI.Her a Pi Zero W is used. On Startup the main.py script shall be executed. For easier access SSH is set up.
+1. Install OS: Pi Lite is installed with Raspberry Pi Imager
+2. Create a new File on the sd boot root "wpa_supplicant.conf" with the following content:
+```
+country=US # Your 2-digit country code
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+network={
+    ssid="YOUR_NETWORK_NAME"
+    psk="YOUR_PASSWORD"
+    key_mgmt=WPA-PSK
+}
+```
+3. Create an empty file with the name "ssh" under the sd boot root.
+
 ## Static Ip Address
 Connect to wifi first!
 1. Get the Gateway Address of wifi and ethernet with ```route -ne```
