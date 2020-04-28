@@ -55,8 +55,8 @@ The Pi shall be used without GUI.Her a Pi Zero W is used. On Startup the main.py
 1. Install OS: Pi Lite is installed with Raspberry Pi Imager
 2. Create a new File on the sd boot root "wpa_supplicant.conf" with the following content:
 ```
-country=US # Your 2-digit country code
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+country=DE
+
 network={
     ssid="YOUR_NETWORK_NAME"
     psk="YOUR_PASSWORD"
@@ -64,6 +64,18 @@ network={
 }
 ```
 3. Create an empty file with the name "ssh" under the sd boot root.
+4. Enable auto login on boot by ```sudo raspi-config``` and select "Console auto-login for CLI".  Use "pi" as username and "raspberry" for the password. Hint: English keyboard is active. For using german keyboard layout you have to enter "raspberrz" as password.
+Check wpa_supplicant.conf file if it is not working. For apply changes execute ```wpa_cli -i wlan0 reconfigure```.
+5. Change default password with ```passwd```
+Troubleshooting:
+Adapter was missing:
+Add adaptor to interfaces ```sudo nano /etc/network/interfaces``` by adding the following lines:
+```
+auto wlan0
+iface wlan0 inet manual
+wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+```
+After applying the changes reboot the pi.
 
 ## Static Ip Address
 Connect to wifi first!
