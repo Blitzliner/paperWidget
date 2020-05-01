@@ -67,11 +67,9 @@ sudo apt update
 sudo apt install git
 ```
 
-2. Edit /boot/cmdline.txt with ```sudo nano /boot/config.txt``` and delete the parameter 
-console=serial0, 115200 from the line
+2. Edit /boot/cmdline.txt with ```sudo nano /boot/cmdline.txt``` and delete the parameter "console=serial0, 115200" from the line
 
-3. Edit /boot/config.txt with ```sudo nano /boot/config.txt``` and add the line enable_uart=1
-reboot after that.
+3. Edit /boot/config.txt with ```sudo nano /boot/config.txt``` and add the line "enable_uart=1". Reboot after that.
    
 4. Install python libs
    ```
