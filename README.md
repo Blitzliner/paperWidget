@@ -1,20 +1,18 @@
 # E-Paper Widgets
 An electronic e-paper display which is used to display widgets for example the weather forecast.
 For the Project following things are used:
-- E Ink Display from Waveshare (800x600, 4.3inch, Serial Interface)
+- E-Ink Display from Waveshare (800x600, 4.3inch, Serial Interface)
 - Raspberry Pi Zero W (W stands for Wifi)
 
 # Installation
 ## Hardware
-Connect the Raspberry Pi with the E-Ink Display
-
+Connect the Raspberry Pi with the E-Ink Display. The pinout is the same for pi zero and pi 2 and pi 3.
 - Pin 1 3.3V	--> 6 - VCC
 - GND		--> 5 - GND
 - Pin 10 GPIO 15	--> 4 - DOUT
 - Pin 8 GPIO 14	--> 3 - DIN
 - Pin 7 GPIO 4	--> 2 - WAKE_UP
 - Pin 3 GPIO 2	--> 1 - RST
-
 
 ## Software
 ### Headless Pi
@@ -36,7 +34,7 @@ Check wpa_supplicant.conf file if it is not working. For apply changes execute `
 5. Change default password with ```passwd```
 
 Troubleshooting:
-Adapter was missing:
+Adapter is missing:
 Add adaptor to interfaces ```sudo nano /etc/network/interfaces``` by adding the following lines:
 ```
 auto wlan0
@@ -45,10 +43,9 @@ wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
 ```
 After applying the changes reboot the pi.
 
-
 ### SSH
 Activate on Pi:
-Please set master passwort of pi first.
+0. Please set master passwort of pi first.
 1. Enable ssh by opening ```sudo nano /etc/ssh/sshd_config``` change
 ```PermitRootLogin``` to: ```PermitRootLogin yes```
 2. Restart SSH with ```sudo service ssh restart```
@@ -59,29 +56,27 @@ Activate on Windows:
 2. Go to terminal and enter ```ssh pi@192.168.2.133``` and confirm with ```yes``` followed by the password
 
 ### Preparation
-1. Clone this repository to the pi desktop.
-```git clone https://github.com/Blitzliner/paperWidget.git```
-If git is not pre installed intall it by: 
-```
-sudo apt update
-sudo apt install git
-```
+1. Clone this repository to the pi desktop with ```git clone https://github.com/Blitzliner/paperWidget.git```.
+If git is not pre installed intall it with ```sudo apt update && sudo apt install git```
+2. You may have to install other librarys:
+- wkhtmltopdf: ```sudo apt install wkhtmltopdf```
+- backfill for PIL: ```sudo apt-get install libopenjp2-7 && sudo apt install libtiff5```
+- backfill for Numpy: ```sudo apt-get install libf77blas.so.3```
 
-2. Edit /boot/cmdline.txt with ```sudo nano /boot/cmdline.txt``` and delete the parameter "console=serial0, 115200" from the line
+3. Edit /boot/cmdline.txt with ```sudo nano /boot/cmdline.txt``` and delete the parameter "console=serial0, 115200" from the line
 
-3. Edit /boot/config.txt with ```sudo nano /boot/config.txt``` and add the line "enable_uart=1". Reboot after that.
+4. Edit /boot/config.txt with ```sudo nano /boot/config.txt``` and add the line "enable_uart=1". Reboot after that.
    
-4. Install python libs
+5. Install python libs
    ```
    sudo apt-get update
    sudp apt-get install libpython-dev python3-rpi.gpio
    sudo apt-get install python3-pip
    pip3 install -U pyserial
-
-   git clone https://github.com/jarret/raspi-uart-waveshare.git
+   pip3 install pillow
+   apt install python3-numpy
    ```
-5. Test a basic exmaple from the git with ```python3 test_basic.py```
-
+6. Test the scripts from /home/pi/paperWidget/common/*.py. Every script has a main function to test basic functionality.
    
 ## Execute Script on Startup
 How to configure server script to be executed on startup?
