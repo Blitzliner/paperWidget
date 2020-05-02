@@ -1,13 +1,5 @@
-import time
-import RPi.GPIO as GPIO
-from waveshare.epaper import EPaper
-from waveshare.epaper import Handshake
-from waveshare.epaper import RefreshAndUpdate
-from waveshare.epaper import SetPallet
-from waveshare.epaper import FillRectangle
-from waveshare.epaper import SetCurrentDisplayRotation
-from waveshare.epaper import SetEnFontSize
-from waveshare.epaper import ClearScreen
+#import RPi.GPIO as GPIO
+from .waveshare.epaper import EPaper, Handshake, RefreshAndUpdate, SetPallet, FillRectangle, SetCurrentDisplayRotation, SetEnFontSize
 import os.path
 import numpy as np
 from PIL import Image
@@ -63,13 +55,24 @@ def send(path):
         paper.send(SetEnFontSize(SetEnFontSize.THIRTYTWO))
         paper.read_responses(timeout=10)
 
+        progress_bar(0, len(lines), prefix='Progress:', suffix='Complete', length=50)
         for idx, line in enumerate(lines):
             paper.send(FillRectangle(*line))
+            progress_bar(idx+1, len(lines), prefix='Progress:', suffix='Complete', length=50)
 
         paper.send(RefreshAndUpdate())
         paper.read_responses()
 
         logger.info(F"Refreshing took {time.time() - start:.3} s")
+
+
+def progress_bar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
+    percent = F"{100 * (iteration / float(total)):.2f}"
+    filled_length = int(length * iteration // total)
+    bar = fill * filled_length + '-' * (length - filled_length)
+    print(F'\r{prefix} |{bar}| {percent}%% {suffix}', end=printEnd)
+    if iteration == total:
+        print()
 
 
 if __name__ == '__main__':
