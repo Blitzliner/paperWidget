@@ -60,7 +60,7 @@ Activate on Windows:
 If git is not pre installed intall it with ```sudo apt update && sudo apt install git```
 2. You may have to install other librarys:
 - wkhtmltopdf: ```sudo apt install wkhtmltopdf```
-- backfill for PIL: ```sudo apt-get install libopenjp2-7 && sudo apt install libtiff5```
+- backfill for PIL: ```sudo apt-get install libopenjp2-7 && sudo apt install libtiff5``` (Maybe not neccessary)
 - backfill for Numpy: ```sudo apt-get install libf77blas.so.3```
 
 3. Edit /boot/cmdline.txt with ```sudo nano /boot/cmdline.txt``` and delete the parameter "console=serial0, 115200" from the line
@@ -70,33 +70,29 @@ If git is not pre installed intall it with ```sudo apt update && sudo apt instal
 5. Install python libs
    ```
    sudo apt-get update
-   sudp apt-get install libpython-dev python3-rpi.gpio
-   sudo apt-get install python3-pip
+   sudp apt install libpython-dev python3-rpi.gpio
+   sudo apt install python3-pip
    pip3 install -U pyserial
-   pip3 install pillow
-   apt install python3-numpy
+   sudo apt install python-pil
+   sudo apt install python3-numpy
    ```
 6. Test the scripts from /home/pi/paperWidget/common/*.py. Every script has a main function to test basic functionality.
+
+Troubleshooting:
+On the pi zero w the standard uart is mapped to the bluetooth interface. You can switch it by adding at the end of /boot/config.txt: dtoverlay=pi3-miniuart-bt. Read more about here https://www.raspberrypi.org/documentation/configuration/uart.md
    
 ## Execute Script on Startup
 How to configure server script to be executed on startup?
 1. Open the rasberry configuration with ```sudo raspi-config``` 
    In the GUI go to Boot Options->Desktop/CLI select Console Autologin
-2. Execute script on start up
-   open ```sudo nano /etc/profile``` and add the following line:
-   ```sudo python3 /home/pi/Desktop/paperWidget/common/server.py &```
-   The & in the line end is for running the script in background
-A better aLternative with cronjob
-1. Open crontab configuration by ```crontab -e```
-2. Add new line for running server.py and widget.py on startup and execute widget every start of an hour.
+2. Open crontab configuration by ```crontab -e```
+3. Add new line for running server.py and widget.py on startup and execute widget every start of an hour.
    ```
    @reboot python3 /home/pi/Desktop/paperWidget/common/server.py &
    @reboot python3 /home/pi/Desktop/paperWidget/common/widget.py &
    0 * * * *  python3 /home/pi/Desktop/paperWidget/common/widget.py
    ```
- 3. Add addtional line for resolving connection problems with ssh
-   ```@reboot sudo service ssh restart```
-
+   
 # Advanced
 ## Static Ip Address
 Connect to wifi first!
