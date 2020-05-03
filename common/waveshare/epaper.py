@@ -424,7 +424,7 @@ class ClearScreen(Command):
 ###############################################################################
 
 # These correspond to the board pins used on the PI3:
-PORT_DEVICE = "/dev/ttyAMA0"
+PORT_DEVICE = "/dev/ttyAMA0"  # serial0" ##ttyAMAO"  #"/dev/ttyS0"  # "/dev/ttyAMA0"
 PIN_RESET = 3
 PIN_WAKEUP = 7
 

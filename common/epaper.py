@@ -1,5 +1,5 @@
-#import RPi.GPIO as GPIO
-from .waveshare.epaper import EPaper, Handshake, RefreshAndUpdate, SetPallet, FillRectangle, SetCurrentDisplayRotation, SetEnFontSize
+import RPi.GPIO as GPIO
+from waveshare.epaper import EPaper, Handshake, RefreshAndUpdate, SetPallet, FillRectangle, SetCurrentDisplayRotation, SetEnFontSize
 import os.path
 import numpy as np
 from PIL import Image
@@ -55,11 +55,14 @@ def send(path):
         paper.send(SetEnFontSize(SetEnFontSize.THIRTYTWO))
         paper.read_responses(timeout=10)
 
-        progress_bar(0, len(lines), prefix='Progress:', suffix='Complete', length=50)
+        progress_bar(0, len(lines), prefix='Progress:')
+        update_rate = len(lines)//100
+
         for idx, line in enumerate(lines):
             paper.send(FillRectangle(*line))
-            progress_bar(idx+1, len(lines), prefix='Progress:', suffix='Complete', length=50)
-
+            if idx%update_rate==0:
+                progress_bar(idx+1, len(lines), prefix='Progress:')
+        progress_bar(len(lines), len(lines), prefix='Progress:')
         paper.send(RefreshAndUpdate())
         paper.read_responses()
 
@@ -70,7 +73,7 @@ def progress_bar(iteration, total, prefix='', suffix='', decimals=1, length=100,
     percent = F"{100 * (iteration / float(total)):.2f}"
     filled_length = int(length * iteration // total)
     bar = fill * filled_length + '-' * (length - filled_length)
-    print(F'\r{prefix} |{bar}| {percent}%% {suffix}', end=printEnd)
+    print(F'\r{prefix} |{bar}| {percent}% {suffix}', end=printEnd)
     if iteration == total:
         print()
 
