@@ -129,21 +129,14 @@ Add the following lines:
    Edit /boot/config.txt with ```sudo nano /boot/config.txt``` and add ```dtoverlay=disable-bt```
 
 # TODOs
-Hardware
-- [x] Use of Pi Zero instead of Pi 3
-- [ ] Power savings
-- [ ] Build a frame for it
-
-Feature
 - [ ] Support of 2Bit Images -> Update would take too long
 An update of Image with 40000 lines takes 66 seconds.
 - [ ] Preview of Image in grayscale
-
-Refactor
-- [x] Create extra script for app configuration -> config.py get_available_apps(), get_general(app_id), get_parameter(app_id), get_setting(app_id, setting_name)
 
 Done
 - [x] Support for Uploading images but still problems with too many lines
 - [x] Add Sever for the settings
 - [x] Save last execution and check for new one instead of threading (save to config.cfg last_executed: timestamp)
 - [x] support of one other example app e.g. joke of the day
+- [x] support of one other example app e.g. joke of the day
+- [x] Create extra script for app configuration -> config.py get_available_apps(), get_general(app_id), get_parameter(app_id), get_setting(app_id, setting_name)
