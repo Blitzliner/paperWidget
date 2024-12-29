@@ -74,7 +74,8 @@
     #main_today_details {
         background-color: rgb(153, 102, 100);
         float: right;
-        width: auto;
+        width: 380px;
+        overflow: hidden;
         padding: 10px;
         font-size: 1.6em;
         font-weight: bold;

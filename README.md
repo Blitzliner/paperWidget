@@ -60,7 +60,7 @@ Activate on Windows:
 If git is not pre installed intall it with ```sudo apt update && sudo apt install git```
 2. You may have to install other librarys:
 - wkhtmltopdf: ```sudo apt install wkhtmltopdf```
-- backfill for PIL: ```sudo apt-get install libopenjp2-7 && sudo apt install libtiff5```
+- backfill for PIL: ```sudo apt-get install libopenjp2-7 && sudo apt install libtiff5``` (Maybe not neccessary)
 - backfill for Numpy: ```sudo apt-get install libf77blas.so.3```
 
 3. Edit /boot/cmdline.txt with ```sudo nano /boot/cmdline.txt``` and delete the parameter "console=serial0, 115200" from the line
@@ -70,33 +70,29 @@ If git is not pre installed intall it with ```sudo apt update && sudo apt instal
 5. Install python libs
    ```
    sudo apt-get update
-   sudp apt-get install libpython-dev python3-rpi.gpio
-   sudo apt-get install python3-pip
+   sudp apt install libpython-dev python3-rpi.gpio
+   sudo apt install python3-pip
    pip3 install -U pyserial
-   pip3 install pillow
-   apt install python3-numpy
+   sudo apt install python-pil
+   sudo apt install python3-numpy
    ```
 6. Test the scripts from /home/pi/paperWidget/common/*.py. Every script has a main function to test basic functionality.
+
+Troubleshooting:
+On the pi zero w the standard uart is mapped to the bluetooth interface. You can switch it by adding at the end of /boot/config.txt: dtoverlay=pi3-miniuart-bt. Read more about here https://www.raspberrypi.org/documentation/configuration/uart.md
    
 ## Execute Script on Startup
 How to configure server script to be executed on startup?
 1. Open the rasberry configuration with ```sudo raspi-config``` 
    In the GUI go to Boot Options->Desktop/CLI select Console Autologin
-2. Execute script on start up
-   open ```sudo nano /etc/profile``` and add the following line:
-   ```sudo python3 /home/pi/Desktop/paperWidget/common/server.py &```
-   The & in the line end is for running the script in background
-A better aLternative with cronjob
-1. Open crontab configuration by ```crontab -e```
-2. Add new line for running server.py and widget.py on startup and execute widget every start of an hour.
+2. Open crontab configuration by ```crontab -e```
+3. Add new line for running server.py and widget.py on startup and execute widget every start of an hour.
    ```
    @reboot python3 /home/pi/Desktop/paperWidget/common/server.py &
    @reboot python3 /home/pi/Desktop/paperWidget/common/widget.py &
    0 * * * *  python3 /home/pi/Desktop/paperWidget/common/widget.py
    ```
- 3. Add addtional line for resolving connection problems with ssh
-   ```@reboot sudo service ssh restart```
-
+   
 # Advanced
 ## Static Ip Address
 Connect to wifi first!
@@ -133,21 +129,14 @@ Add the following lines:
    Edit /boot/config.txt with ```sudo nano /boot/config.txt``` and add ```dtoverlay=disable-bt```
 
 # TODOs
-Hardware
-- [x] Use of Pi Zero instead of Pi 3
-- [ ] Power savings
-- [ ] Build a frame for it
-
-Feature
 - [ ] Support of 2Bit Images -> Update would take too long
 An update of Image with 40000 lines takes 66 seconds.
 - [ ] Preview of Image in grayscale
-
-Refactor
-- [x] Create extra script for app configuration -> config.py get_available_apps(), get_general(app_id), get_parameter(app_id), get_setting(app_id, setting_name)
 
 Done
 - [x] Support for Uploading images but still problems with too many lines
 - [x] Add Sever for the settings
 - [x] Save last execution and check for new one instead of threading (save to config.cfg last_executed: timestamp)
 - [x] support of one other example app e.g. joke of the day
+- [x] support of one other example app e.g. joke of the day
+- [x] Create extra script for app configuration -> config.py get_available_apps(), get_general(app_id), get_parameter(app_id), get_setting(app_id, setting_name)
