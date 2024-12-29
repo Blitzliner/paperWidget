@@ -79,10 +79,10 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):
                     with open(upload_image_path, 'wb') as file:
                         file.write(fs_up.file.read())
 
-                    logger.info("Convert Image to grayscale")
-                    img = Image.open(upload_image_path).convert('L').resize((800, 600))
-                    img = img.point(lambda x: 0 if x < 128 else 255)
-                    img.save(upload_image_path)
+                    # logger.info("Convert Image to grayscale")
+                    # img = Image.open(upload_image_path).convert('L').resize((800, 600))
+                    # img = img.point(lambda x: 0 if x < 128 else 255)
+                    # img.save(upload_image_path)
 
                     widget.update(upload_image_path)
                 else:

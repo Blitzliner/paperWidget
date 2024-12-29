@@ -16,7 +16,7 @@ def send(path):
 
     with EPaper() as paper:
         paper.send(Handshake())
-        time.sleep(2)
+        time.sleep(0.5)
         paper.send(SetPallet(SetPallet.DARK_GRAY, SetPallet.WHITE))  # use of dark_gray for a more clear image
         paper.send(SetCurrentDisplayRotation(SetCurrentDisplayRotation.FLIP))
         paper.send(SetEnFontSize(SetEnFontSize.THIRTYTWO))
