@@ -1,14 +1,13 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 from config import config
-import logging.config
 import os
 import cgi
 import widget
+import utils
 from PIL import Image
 
-logging.config.fileConfig(os.path.join(os.path.dirname(__file__), 'logging.ini'), disable_existing_loggers=False)
-logger = logging.getLogger(__name__)
+logger = utils.getLogger()
 
 
 class WeatherImageRequestHandler(BaseHTTPRequestHandler):
@@ -24,7 +23,7 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):
 
         for _app in config.apps:
             if str(_app) == config.active_app:
-                logger.info(F"Set active app to {_app.id}")
+                logger.info(f"Set active app to {_app.id}")
                 app_options += F'                    <option value="{_app.id}" selected>{_app.name}</option>\n'
             else:
                 app_options += F'                    <option value="{_app.id}">{_app.name}</option>\n'
@@ -62,7 +61,7 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):
         field_data = self.rfile.read(length)
         fields = parse_qs(field_data)
         fields = {key.decode(): val[0].decode() for key, val in fields.items()}
-        logger.info(F"Received field keys: {fields.keys()}")
+        logger.info(f"Received field keys: {fields.keys()}")
         return fields
 
     def do_Head(self):
@@ -76,7 +75,7 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):
                     fs = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ={'REQUEST_METHOD': 'POST'})
                     fs_up = fs['upload']  # get content of form input with name "upload"
                     upload_image_path = os.path.join(os.path.dirname(__file__), 'upload.png')
-                    logger.info(F"Upload image to {upload_image_path}")
+                    logger.info(f"Upload image to {upload_image_path}")
                     with open(upload_image_path, 'wb') as file:
                         file.write(fs_up.file.read())
 
@@ -107,7 +106,7 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):
 
             if app:
                 params = self._read_post_query()
-                logger.info(F"Valid app found: {app_id}")
+                logger.info(f"Valid app found: {app_id}")
                 app.parameter = params
                 app.general = params
             else:
@@ -117,7 +116,7 @@ class WeatherImageRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(bytes(self._get_website(), "utf8"))
 
     def do_GET(self):
-        logger.info(F"Website Root is requested")
+        logger.info(f"Website Root is requested")
         self._set_headers()
         self.wfile.write(bytes(self._get_website(), "utf8"))
 
@@ -126,7 +125,7 @@ def create_server(ip_address="0.0.0.0", port=8000):
     handler = WeatherImageRequestHandler
     server_address = (ip_address, port)
     httpd = HTTPServer(server_address, handler)
-    logger.info(F"Open Browser: http://192.168.2.133:{port}")
+    logger.info(f"Open Browser: {utils.get_network_ip()}:{port}")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
