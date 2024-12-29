@@ -117,7 +117,7 @@ def _slice_image_to_lines(img: np.array):  # , max_width=800, max_height=600):
 
 
 @timing
-def _slice_image_to_rect_opt(grid: list[list[int]]) -> list[Rect]:
+def _slice_image_to_rect_opt(grid: list) -> list:
     if isinstance(grid, np.ndarray):
         grid = grid.tolist()
     rows, cols = len(grid), len(grid[0])
