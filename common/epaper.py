@@ -8,7 +8,7 @@ logger = utils.getLogger()
 
 @utils.timing
 def send(path):
-    rects = get_shapes(path=path, slicer=SliceOptions.SLICE_RECTS_OPT, bit_depth=1)
+    rects = get_shapes(path=path, slicer=SliceOptions.SLICE_LINES_OPT, bit_depth=1)
     baudrate = 115200  # bits/s
     command_length = 17 * 8  # bits
     cost = (command_length * len(rects)) / baudrate

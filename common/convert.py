@@ -10,6 +10,7 @@ logger = logging.getLogger()
 
 class SliceOptions:
     SLICE_LINES = 'SLICE_LINES'
+    SLICE_LINES_OPT = 'SLICE_LINES_OPT'
     SLICE_RECTS = 'SLICE_RECTS'
     SLICE_RECTS_OPT = 'SLICE_RECTS_OPT'
 
@@ -19,6 +20,8 @@ def get_shapes(path: str, slicer: str, bit_depth=1):
     img = _read_image(path=path, bit_depth=bit_depth)
     if slicer == SliceOptions.SLICE_LINES:
         rects = _slice_image_to_lines(img)
+    elif slicer == SliceOptions.SLICE_LINES_OPT:
+        rects = _slice_image_to_lines_opt(img)
     elif slicer == SliceOptions.SLICE_RECTS:
         rects = _slice_image_to_rect(img, value=1)
     elif slicer == SliceOptions.SLICE_RECTS_OPT:
@@ -54,7 +57,7 @@ def _slice_image_to_rect(matrix: np.ndarray, value: int):
         # Mark all cells in the rectangle as visited
         visited[row:row_e + 1, col:col_e + 1] = True
 
-        return (row, col, row_e, col_e)
+        return row, col, row_e, col_e
 
     # Iterate over the matrix
     for r in range(rows):
@@ -107,6 +110,31 @@ def _slice_image_to_lines(img: np.array):  # , max_width=800, max_height=600):
                 y2 = row_idx
                 lines.append([x1, y1, x2, y2])
                 start_row_px = 0
+    if len(lines) > 40000:
+        logger.warning(F"Image is too detailed. Detected ({len(lines)}) lines. Limit to 40000.")
+        lines = lines[:40000]
+    return lines
+
+
+@timing
+def _slice_image_to_lines_opt(img: np.array):
+    if isinstance(img, np.ndarray):
+        img = img.tolist()
+    lines = []
+    max_height, max_width = len(img), len(img[0])
+    end_of_line = max_height - 1
+    logger.info(f'Slice Image with size {max_height} x {max_width}')
+
+    # iterate over all columns
+    for col_idx in range(max_width):
+        start_row_px = None
+        for row_idx in range(max_height):
+            val = img[row_idx][col_idx]
+            if start_row_px is None and not val:  # start of line detected
+                start_row_px = row_idx
+            elif start_row_px is not None and (val or (row_idx == end_of_line)):  # end of line detected
+                lines.append([col_idx, start_row_px, col_idx, row_idx])
+                start_row_px = None
     if len(lines) > 40000:
         logger.warning(F"Image is too detailed. Detected ({len(lines)}) lines. Limit to 40000.")
         lines = lines[:40000]
