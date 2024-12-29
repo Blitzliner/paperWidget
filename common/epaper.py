@@ -23,7 +23,7 @@ def send(path):
         paper.read_responses(timeout=10)
 
         for idx, rect in enumerate(rects):
-            paper.send(FillRectangle(*rect))
+            paper.send(FillRectangle(x1=rect.start.x, y1=rect.start.y, x2=rect.end.x, y2=rect.end.y))
             if idx % 1000 == 0:
                 logger.info(f'Send {idx}/{len(rects)}')
         paper.send(RefreshAndUpdate())

@@ -23,9 +23,9 @@ def get_shapes(path: str, slicer: str, bit_depth=1):
     if slicer == SliceOptions.SLICE_LINES:
         rects = _slice_image_to_lines(img)
     elif slicer == SliceOptions.SLICE_RECTS:
-        rects = _slice_image_to_rect(img)
+        rects = _slice_image_to_rect(img, value=1)
     elif slicer == SliceOptions.SLICE_RECTS_OPT:
-        rects = _slice_image_to_rect_opt(img)
+        rects = _slice_image_to_rect_opt(img, value=1)
     else:
         raise Exception(f'Slicer {slicer} not supported.')
 
@@ -39,7 +39,7 @@ def _slice_image_to_rect(matrix: np.ndarray, value: int):
     visited = np.zeros((rows, cols), dtype=bool)  # Tracks visited cells
     rectangles = []
 
-    def explore_rectangle(row, col, value) -> Rect:
+    def explore_rectangle(row, col) -> Rect:
         # Expand downward
         row_e = row
         while row_e < rows and matrix[row_e, col] == value and not visited[row_e, col]:
@@ -63,7 +63,7 @@ def _slice_image_to_rect(matrix: np.ndarray, value: int):
     for r in range(rows):
         for c in range(cols):
             if not visited[r, c] and matrix[r, c] == value:
-                rectangles.append(explore_rectangle(r, c, matrix[r, c]))
+                rectangles.append(explore_rectangle(r, c))
 
     if len(rectangles) > 40000:
         logger.warning(F"Image is too detailed. Detected ({len(rectangles)}) lines. Limit to 40000.")
@@ -117,14 +117,14 @@ def _slice_image_to_lines(img: np.array):  # , max_width=800, max_height=600):
 
 
 @timing
-def _slice_image_to_rect_opt(grid: list) -> list:
+def _slice_image_to_rect_opt(grid: list, value: int) -> list:
     if isinstance(grid, np.ndarray):
         grid = grid.tolist()
     rows, cols = len(grid), len(grid[0])
     visited = [[False] * cols for _ in range(rows)]
     rectangles = []
 
-    def explore_rectangle(row, col, value) -> Rect:
+    def explore_rectangle(row, col) -> Rect:
         # Expand downward
         row_e = row
         while row_e < rows and grid[row_e][col] == value and not visited[row_e][col]:
@@ -141,7 +141,7 @@ def _slice_image_to_rect_opt(grid: list) -> list:
             col_e += 1
         col_e -= 1
 
-        rectangles.append((row, col, row_e, col_e, value))
+        rectangles.append((row, col, row_e, col_e))
 
     # Iterate over the matrix
     for r in range(rows):
@@ -155,10 +155,10 @@ def _slice_image_to_rect_opt(grid: list) -> list:
 if __name__ == '__main__':
     import cProfile
 
-    get_shapes('example.jpg', func=_slice_image_to_lines)
-    get_shapes('example.jpg', func=_slice_image_to_rect)
-    get_shapes('example.jpg', func=_slice_image_to_rect_opt)
-    get_shapes('example.jpg', func=_slice_image_to_rect_opt, bit_depth=2)
+    get_shapes('example.jpg', slicer=SliceOptions.SLICE_LINES)
+    get_shapes('example.jpg', slicer=SliceOptions.SLICE_RECTS)
+    get_shapes('example.jpg', slicer=SliceOptions.SLICE_RECTS_OPT)
+    get_shapes('example.jpg', slicer=SliceOptions.SLICE_RECTS_OPT, bit_depth=2)
     #cProfile.run("send('example.jpg')")  # 0.15 s
     # cProfile.run("send('example.jpg', func=_slice_image_to_rect)")  # 1.08 s
     # cProfile.run("send('example.jpg', func=_slice_image_to_rect_opt, bit_depth=2)")  # 0.43
