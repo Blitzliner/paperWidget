@@ -3,12 +3,9 @@ import numpy as np
 from PIL import Image
 import logging.config
 import os
-from collections import namedtuple
 from utils import timing
 
 logger = logging.getLogger()
-Point = namedtuple("Point", ["x", "y"])
-Rect = namedtuple("Rect", ["start", "end"])
 
 
 class SliceOptions:
@@ -57,7 +54,7 @@ def _slice_image_to_rect(matrix: np.ndarray, value: int):
         # Mark all cells in the rectangle as visited
         visited[row:row_e + 1, col:col_e + 1] = True
 
-        return Rect(start=Point(x=row, y=col), end=Point(x=row_e, y=col_e))
+        return (row, col, row_e, col_e)
 
     # Iterate over the matrix
     for r in range(rows):
@@ -124,7 +121,7 @@ def _slice_image_to_rect_opt(grid: list, value: int) -> list:
     visited = [[False] * cols for _ in range(rows)]
     rectangles = []
 
-    def explore_rectangle(row, col) -> Rect:
+    def explore_rectangle(row, col):
         # Expand downward
         row_e = row
         while row_e < rows and grid[row_e][col] == value and not visited[row_e][col]:
@@ -146,8 +143,8 @@ def _slice_image_to_rect_opt(grid: list, value: int) -> list:
     # Iterate over the matrix
     for r in range(rows):
         for c in range(cols):
-            if not visited[r][c] and grid[r][c] > 0:
-                explore_rectangle(r, c, grid[r][c])
+            if not visited[r][c] and grid[r][c] == value:
+                explore_rectangle(r, c)
 
     return rectangles
 

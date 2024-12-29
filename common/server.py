@@ -125,6 +125,7 @@ def create_server(ip_address="0.0.0.0", port=8000):
     handler = WeatherImageRequestHandler
     server_address = (ip_address, port)
     httpd = HTTPServer(server_address, handler)
+    httpd.timeout = 300  # increase timeout for slow slicer
     logger.info(f"Open Browser: {utils.get_network_ip()}:{port}")
     try:
         httpd.serve_forever()
