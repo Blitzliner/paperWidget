@@ -8,7 +8,7 @@ from utils import timing
 
 logger = logging.getLogger()
 Point = namedtuple("Point", ["x", "y"])
-Rect = namedtuple("Rect", ["start", "end", "value"])
+Rect = namedtuple("Rect", ["start", "end"])
 
 
 class SliceOptions:
@@ -34,7 +34,7 @@ def get_shapes(path: str, slicer: str, bit_depth=1):
 
 
 @timing
-def _slice_image_to_rect(matrix: np.ndarray):
+def _slice_image_to_rect(matrix: np.ndarray, value: int):
     rows, cols = matrix.shape
     visited = np.zeros((rows, cols), dtype=bool)  # Tracks visited cells
     rectangles = []
@@ -57,12 +57,12 @@ def _slice_image_to_rect(matrix: np.ndarray):
         # Mark all cells in the rectangle as visited
         visited[row:row_e + 1, col:col_e + 1] = True
 
-        return Rect(start=Point(x=row, y=col), end=Point(x=row_e, y=col_e), value=value)
+        return Rect(start=Point(x=row, y=col), end=Point(x=row_e, y=col_e))
 
     # Iterate over the matrix
     for r in range(rows):
         for c in range(cols):
-            if not visited[r, c] and matrix[r, c] > 0:
+            if not visited[r, c] and matrix[r, c] == value:
                 rectangles.append(explore_rectangle(r, c, matrix[r, c]))
 
     if len(rectangles) > 40000:
