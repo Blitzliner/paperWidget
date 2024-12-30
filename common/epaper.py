@@ -1,14 +1,15 @@
 from waveshare.epaper import EPaper, Handshake, RefreshAndUpdate, SetPallet, FillRectangle, SetCurrentDisplayRotation, SetEnFontSize
 import time
 import utils
-from convert import get_shapes, SliceOptions
+from convert import get_shapes, SliceOptions, read_image
 
 logger = utils.getLogger()
 
 
 @utils.timing
 def send(path):
-    rects = get_shapes(path=path, slicer=SliceOptions.SLICE_LINES_OPT, bit_depth=1)
+    img = read_image(path=path, bit_depth=1)
+    rects = get_shapes(img=img, slicer=SliceOptions.SLICE_LINES_OPT, value=1)
     baudrate = 115200  # bits/s
     command_length = 17 * 8  # bits
     cost = (command_length * len(rects)) / baudrate
@@ -16,10 +17,9 @@ def send(path):
 
     with EPaper() as paper:
         paper.send(Handshake())
-        time.sleep(0.5)
-        paper.send(SetPallet(SetPallet.DARK_GRAY, SetPallet.WHITE))  # use of dark_gray for a more clear image
+        time.sleep(0.1)
+        paper.send(SetPallet(SetPallet.BLACK, SetPallet.WHITE))  # use of dark_gray for a more clear image, DARK_GRAY
         paper.send(SetCurrentDisplayRotation(SetCurrentDisplayRotation.FLIP))
-        paper.send(SetEnFontSize(SetEnFontSize.THIRTYTWO))
         paper.read_responses(timeout=10)
 
         for idx, rect in enumerate(rects):

@@ -16,30 +16,74 @@ class SliceOptions:
 
 
 @timing
-def get_shapes(path: str, slicer: str, bit_depth=1):
-    img = _read_image(path=path, bit_depth=bit_depth)
+def read_image(path: str, target_width: int = 800, target_height: int = 600, bit_depth: int = 2, to_file: bool = False) -> np.ndarray:
+    if bit_depth not in [1, 2]:
+        raise ValueError(f'Bit depth must be 1 or 2 but values is {bit_depth}')
+    if not os.path.isfile(path):
+        raise ValueError(f'Path does not exist <{path}>')
+    with Image.open(path) as img:
+        # Calculate aspect ratios
+        target_aspect = target_width / target_height
+        original_aspect = img.width / img.height
+
+        # Crop the image to match the target aspect ratio
+        if original_aspect > target_aspect:  # Wider than target
+            new_width = int(target_aspect * img.height)
+            left = (img.width - new_width) // 2
+            right = left + new_width
+            img = img.crop((left, 0, right, img.height))
+        elif original_aspect < target_aspect:  # Taller than target
+            new_height = int(img.width / target_aspect)
+            top = (img.height - new_height) // 2
+            bottom = top + new_height
+            img = img.crop((0, top, img.width, bottom))
+
+        # Use an efficient filter (e.g., Image.Resampling.BOX or HAMMING)
+        img = np.array(img.convert('L').resize((target_width, target_height), Image.Resampling.BOX))
+
+    max_value = 2 ** bit_depth - 1
+    img_scaled = (img / 255) * max_value
+    img_quantized = np.round(img_scaled).astype(np.uint8)
+    if to_file:
+        img_rescaled = (img_quantized / max_value) * 255  # Scale back to [0, 255]
+        Image.fromarray(img_rescaled.astype(np.uint8)).save('grayscale.png')
+    return img_quantized
+
+
+@timing
+def get_shapes(img: np.ndarray, slicer: str, value: int = 1):
+    logger.info(f'Slice Image with size {img.shape}')
+
     if slicer == SliceOptions.SLICE_LINES:
         rects = _slice_image_to_lines(img)
     elif slicer == SliceOptions.SLICE_LINES_OPT:
-        rects = _slice_image_to_lines_opt(img)
+        if isinstance(img, np.ndarray):
+            img_as_list = img.tolist()
+        rects = _slice_image_to_lines_opt(img_as_list)
     elif slicer == SliceOptions.SLICE_RECTS:
-        rects = _slice_image_to_rect(img, value=1)
+        rects = _slice_image_to_rect(img, value=value)
     elif slicer == SliceOptions.SLICE_RECTS_OPT:
-        rects = _slice_image_to_rect_opt(img, value=1)
+        if isinstance(img, np.ndarray):
+            img_as_list = img.tolist()
+        rects = _slice_image_to_rect_opt(img_as_list, value=value)
     else:
         raise Exception(f'Slicer {slicer} not supported.')
 
     logger.info(f'Sliced Image into {len(rects)} rects')
+
+    if len(rects) > 40000:
+        logger.warning(F'Image is too detailed. Detected ({len(rects)}) lines. Limit to 40000.')
+        rects = rects[:40000]
     return rects
 
 
 @timing
 def _slice_image_to_rect(matrix: np.ndarray, value: int):
     rows, cols = matrix.shape
-    visited = np.zeros((rows, cols), dtype=bool)  # Tracks visited cells
+    visited = np.zeros((rows, cols), dtype=np.bool_)  # Tracks visited cells; use bool_ from numpy for numba
     rectangles = []
 
-    def explore_rectangle(row, col) -> Rect:
+    def explore_rectangle(row, col) -> tuple:
         # Expand downward
         row_e = row
         while row_e < rows and matrix[row_e, col] == value and not visited[row_e, col]:
@@ -56,7 +100,6 @@ def _slice_image_to_rect(matrix: np.ndarray, value: int):
 
         # Mark all cells in the rectangle as visited
         visited[row:row_e + 1, col:col_e + 1] = True
-
         return row, col, row_e, col_e
 
     # Iterate over the matrix
@@ -64,68 +107,33 @@ def _slice_image_to_rect(matrix: np.ndarray, value: int):
         for c in range(cols):
             if not visited[r, c] and matrix[r, c] == value:
                 rectangles.append(explore_rectangle(r, c))
-
-    if len(rectangles) > 40000:
-        logger.warning(F"Image is too detailed. Detected ({len(rectangles)}) lines. Limit to 40000.")
-        rectangles = rectangles[:40000]
-
     return rectangles
 
 
 @timing
-def _read_image(path: str, max_width: int = 800, max_height: int = 600, bit_depth: int = 2,
-                to_file: bool = True) -> np.array:
-    if bit_depth not in [1, 2]:
-        raise ValueError(f'Bit depth must be 1 or 2 but values is {bit_depth}')
-    if not os.path.isfile(path):
-        raise ValueError(f'Path does not exist <{path}>')
-    img = np.array(Image.open(path).convert('L').resize((max_width, max_height)))
-
-    max_value = 2 ** bit_depth - 1
-    img_scaled = (img / 255) * max_value
-    img_quantized = np.round(img_scaled).astype(np.uint8)
-    if to_file:
-        img_rescaled = (img_quantized / max_value) * 255  # Scale back to [0, 255]
-        Image.fromarray(img_rescaled.astype(np.uint8)).save('grayscale.png')
-    return img_quantized
-
-
-@timing
 def _slice_image_to_lines(img: np.array):  # , max_width=800, max_height=600):
-    logger.info("Slice image")
     lines = []
-    start_row_px = 0
-    logger.info(F"Slice Image with size {img.shape}")
     max_height, max_width = img.shape
-    # iterate over all columns
+    end_of_line = max_height - 1
+
     for col_idx in range(max_width):
+        start_row_px = None
         for row_idx in range(max_height):
             val = img[row_idx, col_idx]
-            if not start_row_px and not val:  # start of line detected
+            if start_row_px is not None and not val:  # start of line detected
                 start_row_px = row_idx
-            if start_row_px and (val or (row_idx == (max_height - 1))):  # end of line detected
-                x1 = col_idx
-                y1 = start_row_px
-                x2 = x1
-                y2 = row_idx
-                lines.append([x1, y1, x2, y2])
-                start_row_px = 0
-    if len(lines) > 40000:
-        logger.warning(F"Image is too detailed. Detected ({len(lines)}) lines. Limit to 40000.")
-        lines = lines[:40000]
+            elif start_row_px is not None and (val or (row_idx == end_of_line)):  # end of line detected
+                lines.append([col_idx, start_row_px, col_idx, row_idx])
+                start_row_px = None
     return lines
 
 
 @timing
 def _slice_image_to_lines_opt(img: np.array):
-    if isinstance(img, np.ndarray):
-        img = img.tolist()
     lines = []
     max_height, max_width = len(img), len(img[0])
     end_of_line = max_height - 1
-    logger.info(f'Slice Image with size {max_height} x {max_width}')
 
-    # iterate over all columns
     for col_idx in range(max_width):
         start_row_px = None
         for row_idx in range(max_height):
@@ -135,16 +143,11 @@ def _slice_image_to_lines_opt(img: np.array):
             elif start_row_px is not None and (val or (row_idx == end_of_line)):  # end of line detected
                 lines.append([col_idx, start_row_px, col_idx, row_idx])
                 start_row_px = None
-    if len(lines) > 40000:
-        logger.warning(F"Image is too detailed. Detected ({len(lines)}) lines. Limit to 40000.")
-        lines = lines[:40000]
     return lines
 
 
 @timing
 def _slice_image_to_rect_opt(grid: list, value: int) -> list:
-    if isinstance(grid, np.ndarray):
-        grid = grid.tolist()
     rows, cols = len(grid), len(grid[0])
     visited = [[False] * cols for _ in range(rows)]
     rectangles = []
@@ -178,12 +181,14 @@ def _slice_image_to_rect_opt(grid: list, value: int) -> list:
 
 
 if __name__ == '__main__':
-    import cProfile
+    img = read_image(path='example.jpg', bit_depth=1)
+    get_shapes(img=img, slicer=SliceOptions.SLICE_LINES)
+    get_shapes(img=img, slicer=SliceOptions.SLICE_LINES_OPT)
+    get_shapes(img=img, slicer=SliceOptions.SLICE_RECTS)
+    get_shapes(img=img, slicer=SliceOptions.SLICE_RECTS_OPT)
+    get_shapes(img=img, slicer=SliceOptions.SLICE_RECTS_OPT)
 
-    get_shapes('example.jpg', slicer=SliceOptions.SLICE_LINES)
-    get_shapes('example.jpg', slicer=SliceOptions.SLICE_RECTS)
-    get_shapes('example.jpg', slicer=SliceOptions.SLICE_RECTS_OPT)
-    get_shapes('example.jpg', slicer=SliceOptions.SLICE_RECTS_OPT, bit_depth=2)
-    #cProfile.run("send('example.jpg')")  # 0.15 s
+    # import cProfile
+    # cProfile.run("send('example.jpg')")  # 0.15 s
     # cProfile.run("send('example.jpg', func=_slice_image_to_rect)")  # 1.08 s
     # cProfile.run("send('example.jpg', func=_slice_image_to_rect_opt, bit_depth=2)")  # 0.43
