@@ -13,6 +13,7 @@ class SliceOptions:
     SLICE_LINES_OPT = 'SLICE_LINES_OPT'
     SLICE_RECTS = 'SLICE_RECTS'
     SLICE_RECTS_OPT = 'SLICE_RECTS_OPT'
+    SLICE_RECTS_OPT_INLINE = 'SLICE_RECTS_OPT_INLINE'
 
 
 @timing
@@ -55,19 +56,19 @@ def read_image(path: str, target_width: int = 800, target_height: int = 600, bit
 @timing
 def get_shapes(img: np.ndarray, slicer: str, value: int = 1):
     logger.info(f'Slice Image with size {img.shape}')
-
+    if slicer in [SliceOptions.SLICE_LINES_OPT, SliceOptions.SLICE_RECTS_OPT, SliceOptions.SLICE_RECTS_OPT_INLINE]:
+        if isinstance(img, np.ndarray):
+            img = img.tolist()
     if slicer == SliceOptions.SLICE_LINES:
         rects = _slice_image_to_lines(img)
     elif slicer == SliceOptions.SLICE_LINES_OPT:
-        if isinstance(img, np.ndarray):
-            img_as_list = img.tolist()
-        rects = _slice_image_to_lines_opt(img_as_list)
+        rects = _slice_image_to_lines_opt(img)
     elif slicer == SliceOptions.SLICE_RECTS:
         rects = _slice_image_to_rect(img, value=value)
     elif slicer == SliceOptions.SLICE_RECTS_OPT:
-        if isinstance(img, np.ndarray):
-            img_as_list = img.tolist()
-        rects = _slice_image_to_rect_opt(img_as_list, value=value)
+        rects = _slice_image_to_rect_opt(img, value=value)
+    elif slicer == SliceOptions.SLICE_RECTS_OPT_INLINE:
+        rects = _slice_image_to_rect_opt_inline(img, value=value)
     else:
         raise Exception(f'Slicer {slicer} not supported.')
 
@@ -182,13 +183,46 @@ def _slice_image_to_rect_opt(grid: list, value: int) -> list:
     return rectangles
 
 
+@timing
+def _slice_image_to_rect_opt_inline(grid: list, value: int) -> list:
+    rows, cols = len(grid), len(grid[0])
+    rectangles = []
+
+    def explore_rectangle(row, col):
+        # Expand downward
+        row_e = row
+        while row_e < rows and grid[row_e][col] == value:
+            grid[row_e][col] = 0  # reset pixel
+            row_e += 1
+        row_e -= 1
+
+        # Expand rightward for all rows in the range
+        col_e = col + 1
+        # do not check for visited in order to reduce rectangles
+        while col_e < cols and all(grid[row_][col_e] == value for row_ in range(row, row_e + 1)):
+            for row_ in range(row, row_e + 1):
+                grid[row_][col_e] = 0
+            col_e += 1
+        col_e -= 1
+
+        rectangles.append((row, col, row_e, col_e))
+
+    # Iterate over the matrix
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r][c] == value:
+                explore_rectangle(r, c)
+
+    return rectangles
+
+
 if __name__ == '__main__':
     img = read_image(path='example.jpg', bit_depth=1)
     get_shapes(img=img, slicer=SliceOptions.SLICE_LINES)
     get_shapes(img=img, slicer=SliceOptions.SLICE_LINES_OPT)
     get_shapes(img=img, slicer=SliceOptions.SLICE_RECTS)
     get_shapes(img=img, slicer=SliceOptions.SLICE_RECTS_OPT)
-    get_shapes(img=img, slicer=SliceOptions.SLICE_RECTS_OPT)
+    get_shapes(img=img, slicer=SliceOptions.SLICE_RECTS_OPT_INLINE)
 
     # import cProfile
     # cProfile.run("send('example.jpg')")  # 0.15 s
