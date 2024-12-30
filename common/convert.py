@@ -39,6 +39,8 @@ def read_image(path: str, target_width: int = 800, target_height: int = 600, bit
             img = img.crop((0, top, img.width, bottom))
 
         # Use an efficient filter (e.g., Image.Resampling.BOX or HAMMING)
+        if not hasattr(Image, 'Resampling'):  # Pillow<9.0
+            Image.Resampling = Image
         img = np.array(img.convert('L').resize((target_width, target_height), Image.Resampling.BOX))
 
     max_value = 2 ** bit_depth - 1
