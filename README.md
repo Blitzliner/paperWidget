@@ -75,6 +75,7 @@ If git is not pre installed intall it with ```sudo apt update && sudo apt instal
    pip3 install -U pyserial
    sudo apt install python-pil
    sudo apt install python3-numpy
+   sudo pip3 install uvicorn fastapi jinja2 python-multipart
    ```
 6. Test the scripts from /home/pi/paperWidget/common/*.py. Every script has a main function to test basic functionality.
 

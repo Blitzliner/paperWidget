@@ -68,7 +68,8 @@ async def handle_general_form(request: Request, active_app: str = Form(None), sa
 
 
 # Static files (optional, for serving styles or other assets)
-app.mount('/static', StaticFiles(directory='templates/static'), name='static')
+file_dir = os.path.dirname(os.path.abspath(__file__))
+app.mount('/static', StaticFiles(directory=os.path.join(file_dir, 'templates', 'static')), name='static')
 
 if __name__ == '__main__':
     import uvicorn
