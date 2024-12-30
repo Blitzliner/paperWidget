@@ -11,7 +11,8 @@ logger = utils.getLogger()
 
 app = FastAPI()
 
-templates = Jinja2Templates(directory="templates")  # Ensure your template.html is in the 'templates' directory
+file_dir = os.path.dirname(os.path.abspath(__file__))
+templates = Jinja2Templates(directory=os.path.join(file_dir, "templates"))  # Ensure your template.html is in the 'templates' directory
 
 
 @app.get('/', response_class=HTMLResponse)
@@ -68,7 +69,6 @@ async def handle_general_form(request: Request, active_app: str = Form(None), sa
 
 
 # Static files (optional, for serving styles or other assets)
-file_dir = os.path.dirname(os.path.abspath(__file__))
 app.mount('/static', StaticFiles(directory=os.path.join(file_dir, 'templates', 'static')), name='static')
 
 if __name__ == '__main__':
