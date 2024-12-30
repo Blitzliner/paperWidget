@@ -1,4 +1,5 @@
-from waveshare.epaper import EPaper, Handshake, RefreshAndUpdate, SetPallet, FillRectangle, SetCurrentDisplayRotation, SetEnFontSize
+from waveshare.epaper import EPaper, Handshake, RefreshAndUpdate, SetPallet, FillRectangle, SetCurrentDisplayRotation, \
+    SetEnFontSize
 import time
 import utils
 from convert import get_shapes, SliceOptions, read_image
@@ -7,16 +8,6 @@ import struct
 
 logger = utils.getLogger()
 
-_cmd_buff = [0]*16
-_cmd_buff[0] = 0xA5
-_cmd_buff[1] = 0x00
-_cmd_buff[2] = 0x11
-_cmd_buff[3] = 0x24
-
-_cmd_buff[12] = 0xCC
-_cmd_buff[13] = 0x33
-_cmd_buff[14] = 0xC3
-_cmd_buff[15] = 0x3C
 
 def send(path):
     img = read_image(path=path, bit_depth=1)
@@ -39,14 +30,7 @@ def send_to_epaper(rects):
         paper.read_responses(timeout=10)
 
         for idx, rect in enumerate(rects):
-            bytes = struct.pack(">HHHH", rect[0], rect[1], rect[2], rect[3])
-            for i, b in enumerate(bytes):
-                _cmd_buff[4 + i] = b
-            _verify = 0
-            for d in _cmd_buff:
-                _verify ^= d
-                paper.serial.write(d)
-            paper.serial.write(_verify)
+            _send_fast(paper.serial, rect)
             # paper.send(FillRectangle(x1=rect[0], y1=rect[1], x2=rect[2], y2=rect[3]))
             if idx % 1000 == 0:
                 logger.info(f'Send {idx}/{len(rects)}')
@@ -54,5 +38,21 @@ def send_to_epaper(rects):
         paper.read_responses()
 
 
+_cmd_start = b'\xA5\x00\x11\x24'
+_cmd_end = b'\xA5\x00\x11\x24'
+
+
+def _send_fast(serial, rect):
+    global _cmd_start, _cmd_end
+    bytes = struct.pack(">HHHH", rect[0], rect[1], rect[2], rect[3])
+    _verify = 0
+    command = _cmd_start + bytes + _cmd_end
+    for d in command:
+        _verify ^= d
+    command += _verify.to_bytes(1, byteorder='big')
+    serial.write(command)
+
+
 if __name__ == '__main__':
-    send('snapshot.png')
+    # send('snapshot.png')
+    _send_fast((1, 1, 2, 2))
