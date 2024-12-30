@@ -1,0 +1,72 @@
+ <!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="data:,">
+    <link href="{{ url_for('static', path='/styles/style.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static', path='/scripts/script.js') }}"></script>
+  </head>
+  <body>
+    <div id="main_widget">
+        <form action="/general" method="post">
+            <fieldset>
+                <legend>General Settings</legend>
+                <label>Select Active App:
+                <select name="active_app" size="1">
+                    {% for app in apps %}
+                        {% if app.id == active_app %}
+                            {% set selected = 'selected' %}
+                        {% else %}
+                            {% set selected = '' %}
+                        {% endif %}
+                        <option value="{{app.id}}" {{selected}}>{{app.name}}</option>'
+                    {% endfor %}
+                </select></label>
+                <!--<br>-->
+                <button class="btn_save" name="save" value="save" type="submit">Save</button>
+                <button class="btn_preview" name="update" value="update" type="submit">Update</button>
+            </fieldset>
+        </form>
+        <fieldset>
+            <legend>Apps</legend>
+            {% for app in apps %}
+            <details>
+                <summary>{{app.name}}</summary>
+                <form action="/apps/{{app.id}}" method="post">
+                    <button class="apps btn_save" type="submit">Save</button>
+                    <button class="apps btn_preview" type="button">Preview</button>
+                    <fieldset>
+                        <legend>General</legend>
+                        {% for key, value in app.general.items() %}
+                            <label>{{key}}: <input type="text" name="{{key}}" value="{{value}}"/></label><br/>
+                        {% endfor %}
+                    </fieldset>
+                    {% if app.parameter|length > 0 %}
+                    <fieldset>
+                        <legend>Parameter</legend>
+                        {% for key, value in app.parameter.items() %}
+                            <label>{{key}}: <input type="text" name="{{key}}" value="{{value}}"/></label><br/>
+                        {% endfor %}
+                    </fieldset>
+                    {% endif %}
+                </form>
+            </details>
+            {% endfor %}
+        </fieldset>
+        <form action="upload" method="post" enctype="multipart/form-data">
+            <fieldset>
+                <legend>File Upload</legend>
+                <input id="file_upload" type="file" name="upload" accept="image/jpeg,image/png"><br/>
+                <button class="btn_save" type="submit">Save</button>
+                <button class="btn_preview" type="button">Preview</button>
+            </fieldset>
+        </form>
+        <fieldset id="preview">
+            <legend>Preview</legend>
+            <label>Address: <input id="preview_address" type="text" disabled /></label>
+            <br/>
+            <iframe id="iframe_preview"/>
+        </fieldset>
+    </div>
+  </body>
+</html>
