@@ -439,7 +439,7 @@ class EPaper(object):
     for more info.
     '''
     def __init__(self, port=PORT_DEVICE, reset=PIN_RESET, wakeup=PIN_WAKEUP,
-                 mode=GPIO.BOARD):
+                 mode=GPIO.BOARD, baudrate=115200):
         '''
         Makes an EPaper object that will read and write from the specified
         serial device (file name).
@@ -453,7 +453,7 @@ class EPaper(object):
         @param mode The mode of GPIO pin addressing (GPIO.BOARD is the default).
         '''
         self.serial = serial.Serial(port)
-        self.serial.baudrate = 115200 # default for device
+        self.serial.baudrate = baudrate  #  115200 # default for device
         self.serial.bytesize = serial.EIGHTBITS
         self.serial.parity = serial.PARITY_NONE
 
