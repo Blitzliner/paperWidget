@@ -25,15 +25,16 @@ def send_to_epaper(rects):
     default_braudrate = 115200
     with EPaper(baudrate=default_braudrate) as paper:
         paper.send(Handshake())
-        logger.info(f'Current baudrate: {paper.send(ReadBaudrate())}')
         time.sleep(0.1)
+        paper.send(ReadBaudrate())
+        logger.info(f'Current baudrate: {paper.read(6)}')
         paper.send(SetBaudrate(baudrate))
         time.sleep(10)
-        # logger.info(f'Current baudrate: {paper.read(ReadBaudrate())}')  # may not work anymore
     with EPaper(baudrate=baudrate) as paper:
         paper.send(Handshake())
         time.sleep(0.1)
-        logger.info(f'Current baudrate: {paper.send(ReadBaudrate())}')
+        paper.send(ReadBaudrate())
+        logger.info(f'Current baudrate: {paper.read(6)}')
         paper.send(SetPallet(SetPallet.BLACK, SetPallet.WHITE))  # use of dark_gray for a more clear image, DARK_GRAY
         paper.send(SetCurrentDisplayRotation(SetCurrentDisplayRotation.FLIP))
         paper.read_responses(timeout=10)

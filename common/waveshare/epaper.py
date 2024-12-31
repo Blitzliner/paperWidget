@@ -428,7 +428,7 @@ PORT_DEVICE = "/dev/ttyAMA0"  # serial0" ##ttyAMAO"  #"/dev/ttyS0"  # "/dev/ttyA
 PIN_RESET = 3
 PIN_WAKEUP = 7
 
-RESPONSE_READ_THRESHOLD = 2  # set to high number in order to prevent read responses.. 600
+RESPONSE_READ_THRESHOLD = 600
 
 class EPaper(object):
     '''
@@ -517,7 +517,7 @@ class EPaper(object):
         self.bytes_expected += command.RESPONSE_BYTES
         self.serial.write(command.encode())
         if self.bytes_expected >= RESPONSE_READ_THRESHOLD:
-            return self.read_responses()
+            self.read_responses()
 
     def read(self, size=100, timeout=5):
         '''
@@ -540,4 +540,3 @@ class EPaper(object):
         #print("read: %d, read time: %0.2f" % (len(b),
         #                                      time.time() - start_time))
         self.bytes_expected -= len(b)
-        return b
