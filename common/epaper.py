@@ -38,19 +38,17 @@ def send_to_epaper(rects):
         paper.read_responses()
 
 
-_cmd_start = b'\xA5\x00\x11\x24'
-_cmd_end = b'\xA5\x00\x11\x24'
-
-
 def _send_fast(serial, rect):
-    global _cmd_start, _cmd_end
-    bytes = struct.pack(">HHHH", rect[0], rect[1], rect[2], rect[3])
+    load = struct.pack(">HHHH", rect[0], rect[1], rect[2], rect[3])
     _verify = 0
-    command = _cmd_start + bytes + _cmd_end
+    command = b'\xA5\x00\x11\x24' + load + b'\xA5\x00\x11\x24'
     for d in command:
         _verify ^= d
     command += _verify.to_bytes(1, byteorder='big')
     serial.write(command)
+    serial.timeout = 3
+    b = serial.read(2)
+    logger.info(b)
 
 
 if __name__ == '__main__':
