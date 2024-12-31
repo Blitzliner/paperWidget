@@ -16,7 +16,10 @@ def send(path):
 
 @utils.timing
 def send_to_epaper(rects):
-    baudrate = 460800  #460800, 230400 115200  # bits/s
+    # 115200: OK
+    # 230400:
+    # 460800: NOK
+    baudrate = 230400
     command_length = 17 * 8  # bits
     cost = (command_length * len(rects)) / baudrate
     logger.info(f'Image will take approx. {cost:.3f} s')
@@ -27,14 +30,14 @@ def send_to_epaper(rects):
         paper.send(Handshake())
         time.sleep(0.1)
         paper.send(ReadBaudrate())
-        logger.info(f'Current baudrate: {paper.read(6)}')
+        logger.info(f'Current baudrate: {paper.read(2 + 6)}')
         paper.send(SetBaudrate(baudrate))
         time.sleep(10)
     with EPaper(baudrate=baudrate) as paper:
         paper.send(Handshake())
         time.sleep(0.1)
         paper.send(ReadBaudrate())
-        logger.info(f'Current baudrate: {paper.read(6)}')
+        logger.info(f'Current baudrate: {paper.read(2 + 6)}')
         paper.send(SetPallet(SetPallet.BLACK, SetPallet.WHITE))  # use of dark_gray for a more clear image, DARK_GRAY
         paper.send(SetCurrentDisplayRotation(SetCurrentDisplayRotation.FLIP))
         paper.read_responses(timeout=10)
