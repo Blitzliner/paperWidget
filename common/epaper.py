@@ -1,5 +1,4 @@
-from waveshare.epaper import EPaper, Handshake, RefreshAndUpdate, SetPallet, FillRectangle, SetCurrentDisplayRotation, \
-    SetEnFontSize
+from waveshare.epaper import EPaper, Handshake, RefreshAndUpdate, SetPallet, FillRectangle, SetCurrentDisplayRotation
 import time
 import utils
 from convert import get_shapes, SliceOptions, read_image
@@ -39,9 +38,14 @@ def send_to_epaper(rects):
 
 
 def _send_fast(serial, rect):
+    # 0: frame header: b'\xa5'
+    # 1-2: length: 1 + 2 + 1 + len(load) + 4 + 1 = 17 = b'\x11
+    # 3: command: b'\x24'
+    # 4-12: load:
+    # 13-16: frame footer: b'\xcc\x33\xc3\x3c'
     load = struct.pack(">HHHH", rect[0], rect[1], rect[2], rect[3])
     _verify = 0
-    command = b'\xA5\x00\x11\x24' + load + b'\xA5\x00\x11\x24'
+    command = b'\xA5\x00\x11\x24' + load + b'\xcc\x33\xc3\x3c'
     for d in command:
         _verify ^= d
     command += _verify.to_bytes(1, byteorder='big')
@@ -53,4 +57,4 @@ def _send_fast(serial, rect):
 
 if __name__ == '__main__':
     # send('snapshot.png')
-    _send_fast((1, 1, 2, 2))
+    _send_fast(None, (1, 1, 2, 2))
