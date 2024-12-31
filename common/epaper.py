@@ -62,8 +62,8 @@ def _send_fast(serial, rect):
     verify = reduce(lambda x, y: x ^ y, command)
     command.append(verify)
     serial.write(command)
-    serial.timeout = 1  # reduce timeout
-    serial.read(2)
+    # serial.timeout = 1  # reduce timeout
+    # serial.read(2)
     #b = serial.read(2)
     #if b != b'OK':
     #    logger.info(b)
