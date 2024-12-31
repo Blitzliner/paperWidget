@@ -17,22 +17,22 @@ def send(path):
 @utils.timing
 def send_to_epaper(rects):
     # 115200: OK
-    # 230400:
+    # 230400: NOK
     # 460800: NOK
-    baudrate = 230400
+    baudrate = 115200  # 230400
     command_length = 17 * 8  # bits
     cost = (command_length * len(rects)) / baudrate
     logger.info(f'Image will take approx. {cost:.3f} s')
-    # change baudrate
-    from waveshare.epaper import SetBaudrate, ReadBaudrate
-    default_braudrate = 115200
-    with EPaper(baudrate=default_braudrate) as paper:
-        paper.send(Handshake())
-        time.sleep(0.1)
-        paper.send(ReadBaudrate())
-        logger.info(f'Current baudrate: {paper.read(2 + 6)}')
-        paper.send(SetBaudrate(baudrate))
-        time.sleep(10)
+    if False:  # change baudrate
+        from waveshare.epaper import SetBaudrate, ReadBaudrate
+        default_braudrate = 115200
+        with EPaper(baudrate=default_braudrate) as paper:
+            paper.send(Handshake())
+            time.sleep(0.1)
+            paper.send(ReadBaudrate())
+            logger.info(f'Current baudrate: {paper.read(2 + 6)}')
+            paper.send(SetBaudrate(baudrate))
+            time.sleep(10)
     with EPaper(baudrate=baudrate) as paper:
         paper.send(Handshake())
         time.sleep(0.1)
