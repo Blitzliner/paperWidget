@@ -172,7 +172,7 @@ def _slice_image_to_rect_opt(grid: list, value: int) -> list:
             col_e += 1
         col_e -= 1
 
-        rectangles.append((row, col, row_e, col_e))
+        rectangles.append((col, row, col_e, row_e))
 
     # Iterate over the matrix
     for r in range(rows):
@@ -205,7 +205,7 @@ def _slice_image_to_rect_opt_inline(grid: list, value: int) -> list:
             col_e += 1
         col_e -= 1
 
-        rectangles.append((row, col, row_e, col_e))
+        rectangles.append((col, row, col_e, row_e))
 
     # Iterate over the matrix
     for r in range(rows):
