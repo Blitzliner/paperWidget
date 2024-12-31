@@ -36,8 +36,8 @@ def send_to_epaper(rects):
     with EPaper(baudrate=baudrate) as paper:
         paper.send(Handshake())
         time.sleep(0.1)
-        paper.send(ReadBaudrate())
-        logger.info(f'Current baudrate: {paper.read(2 + 6)}')
+        # paper.send(ReadBaudrate())
+        # logger.info(f'Current baudrate: {paper.read(2 + 6)}')
         paper.send(SetPallet(SetPallet.BLACK, SetPallet.WHITE))  # use of dark_gray for a more clear image, DARK_GRAY
         paper.send(SetCurrentDisplayRotation(SetCurrentDisplayRotation.FLIP))
         paper.read_responses(timeout=10)
