@@ -2,7 +2,7 @@ from waveshare.epaper import EPaper, Handshake, RefreshAndUpdate, SetPallet, Fil
 import time
 import utils
 from convert import get_shapes, SliceOptions, read_image
-
+from functools import reduce
 import struct
 
 logger = utils.getLogger()
@@ -44,16 +44,15 @@ def _send_fast(serial, rect):
     # 4-12: load:
     # 13-16: frame footer: b'\xcc\x33\xc3\x3c'
     load = struct.pack(">HHHH", rect[0], rect[1], rect[2], rect[3])
-    _verify = 0
-    command = b'\xA5\x00\x11\x24' + load + b'\xcc\x33\xc3\x3c'
-    for d in command:
-        _verify ^= d
-    command += _verify.to_bytes(1, byteorder='big')
+    command = bytearray( b'\xA5\x00\x11\x24' + load + b'\xcc\x33\xc3\x3c')
+    verify = reduce(lambda x, y: x ^ y, command)
+    command.append(verify)
     serial.write(command)
-    serial.timeout = 3
-    b = serial.read(2)
-    if b != 'bOK':
-        logger.info(b)
+    serial.timeout = 1  # reduce timeout
+    serial.read(2)
+    #b = serial.read(2)
+    #if b != b'OK':
+    #    logger.info(b)
 
 
 if __name__ == '__main__':
