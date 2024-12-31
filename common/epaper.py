@@ -52,7 +52,8 @@ def _send_fast(serial, rect):
     serial.write(command)
     serial.timeout = 3
     b = serial.read(2)
-    logger.info(b)
+    if b != 'bOK':
+        logger.info(b)
 
 
 if __name__ == '__main__':
