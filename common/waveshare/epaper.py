@@ -517,7 +517,7 @@ class EPaper(object):
         self.bytes_expected += command.RESPONSE_BYTES
         self.serial.write(command.encode())
         if self.bytes_expected >= RESPONSE_READ_THRESHOLD:
-            self.read_responses()
+            return self.read_responses()
 
     def read(self, size=100, timeout=5):
         '''
@@ -540,3 +540,4 @@ class EPaper(object):
         #print("read: %d, read time: %0.2f" % (len(b),
         #                                      time.time() - start_time))
         self.bytes_expected -= len(b)
+        return b

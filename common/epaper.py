@@ -25,7 +25,7 @@ def send_to_epaper(rects):
     default_braudrate = 115200
     with EPaper(baudrate=default_braudrate) as paper:
         paper.send(Handshake())
-        logger.info(f'Current baudrate: {paper.read(ReadBaudrate())}')
+        logger.info(f'Current baudrate: {paper.send(ReadBaudrate())}')
         time.sleep(0.1)
         paper.send(SetBaudrate(baudrate))
         time.sleep(10)
