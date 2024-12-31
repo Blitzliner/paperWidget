@@ -428,7 +428,7 @@ PORT_DEVICE = "/dev/ttyAMA0"  # serial0" ##ttyAMAO"  #"/dev/ttyS0"  # "/dev/ttyA
 PIN_RESET = 3
 PIN_WAKEUP = 7
 
-RESPONSE_READ_THRESHOLD = 600
+RESPONSE_READ_THRESHOLD = 2  # set to high number in order to prevent read responses.. 600
 
 class EPaper(object):
     '''

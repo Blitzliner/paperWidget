@@ -33,7 +33,7 @@ def send_to_epaper(rects):
     with EPaper(baudrate=baudrate) as paper:
         paper.send(Handshake())
         time.sleep(0.1)
-        logger.info(f'Current baudrate: {paper.read(ReadBaudrate())}')
+        logger.info(f'Current baudrate: {paper.send(ReadBaudrate())}')
         paper.send(SetPallet(SetPallet.BLACK, SetPallet.WHITE))  # use of dark_gray for a more clear image, DARK_GRAY
         paper.send(SetCurrentDisplayRotation(SetCurrentDisplayRotation.FLIP))
         paper.read_responses(timeout=10)
@@ -54,7 +54,7 @@ def _send_fast(serial, rect):
     # 4-12: load:
     # 13-16: frame footer: b'\xcc\x33\xc3\x3c'
     load = struct.pack(">HHHH", rect[0], rect[1], rect[2], rect[3])
-    command = bytearray( b'\xA5\x00\x11\x24' + load + b'\xcc\x33\xc3\x3c')
+    command = bytearray(b'\xA5\x00\x11\x24' + load + b'\xcc\x33\xc3\x3c')
     verify = reduce(lambda x, y: x ^ y, command)
     command.append(verify)
     serial.write(command)
