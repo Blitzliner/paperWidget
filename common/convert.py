@@ -55,7 +55,7 @@ def read_image(path: str, target_width: int = 800, target_height: int = 600, bit
 
 
 @timing
-def get_shapes(img: np.ndarray, slicer: str, value: int = 1):
+def get_shapes(img: np.ndarray, slicer: str, value: int = 0):
     logger.info(f'Slice Image with size {img.shape}')
     if slicer in [SliceOptions.SLICE_LINES_OPT, SliceOptions.SLICE_RECTS_OPT, SliceOptions.SLICE_RECTS_OPT_INLINE]:
         if isinstance(img, np.ndarray):
@@ -193,7 +193,7 @@ def _slice_image_to_rect_opt_inline(grid: list, value: int) -> list:
         # Expand downward
         row_e = row
         while row_e < rows and grid[row_e][col] == value:
-            grid[row_e][col] = 0  # reset pixel
+            grid[row_e][col] = None  # reset pixel
             row_e += 1
         row_e -= 1
 
@@ -202,7 +202,7 @@ def _slice_image_to_rect_opt_inline(grid: list, value: int) -> list:
         # do not check for visited in order to reduce rectangles
         while col_e < cols and all(grid[row_][col_e] == value for row_ in range(row, row_e + 1)):
             for row_ in range(row, row_e + 1):
-                grid[row_][col_e] = 0
+                grid[row_][col_e] = None
             col_e += 1
         col_e -= 1
 
