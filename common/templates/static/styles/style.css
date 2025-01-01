@@ -19,17 +19,17 @@ form label {
     float: left;
     margin: 5px 0px 5px 0px;
 }
-.btn_save, .btn_preview  {
+.btn_save, .btn_preview, .btn_update, .btn_upload  {
     float: right;
     width: 60px;
     padding: 4px 6px;
     margin-left: 10px;
     margin-top: 6px;
 }
-.apps.btn_save, .apps.btn_preview {
+.app .btn_save, .app .btn_preview {
     margin-top: -45px;
 }
-.apps.btn_preview {
+.app .btn_preview {
     margin-right: 70px;
 }
 
@@ -79,8 +79,7 @@ details {
     zoom: 0.5;
 }
 
-/* snackbar */
-#snackbar {
+#toast {
   visibility: hidden;
   min-width: 250px;
   margin-left: -125px;
@@ -96,7 +95,7 @@ details {
   font-size: 1.0em;
 }
 
-#snackbar.show {
+#toast.show {
   visibility: visible;
   animation: fadein 0.5s, fadeout 0.5s 2.5s;
 }

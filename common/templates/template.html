@@ -9,9 +9,9 @@
     <script src="{{ url_for('static', path='/scripts/script.js') }}"></script>
   </head>
   <body>
-    <div id="snackbar"></div>
+    <div id="toast"></div>
     <div id="main_widget">
-        <form action="/general" method="post">
+        <form class="general">
             <fieldset>
                 <legend>General Settings</legend>
                 <label>Select Active App:
@@ -27,7 +27,7 @@
                 </select></label>
                 <!--<br>-->
                 <button class="btn_save" name="save" value="save" type="submit">Save</button>
-                <button class="btn_preview" name="update" value="update" type="submit">Update</button>
+                <button class="btn_update" name="update" value="update" type="submit">Update</button>
             </fieldset>
         </form>
         <fieldset>
@@ -35,9 +35,10 @@
             {% for app in apps %}
             <details>
                 <summary>{{app.name}}</summary>
-                <form action="/apps/{{app.id}}" method="post">
-                    <button class="apps btn_save" type="submit">Save</button>
-                    <button class="apps btn_preview" type="button">Preview</button>
+                <form class="app">
+                    <input type="text" name="app_id" value="{{app.id}}" hidden/>
+                    <button class="btn_save" type="submit">Save</button>
+                    <button class="btn_preview" type="button">Preview</button>
                     <fieldset>
                         <legend>General</legend>
                         {% for key, value in app.general.items() %}
@@ -56,11 +57,11 @@
             </details>
             {% endfor %}
         </fieldset>
-        <form action="upload" method="post" enctype="multipart/form-data">
+        <form class="image_upload" enctype="multipart/form-data"> <!-- action="upload" method="post" enctype="multipart/form-data">-->
             <fieldset>
                 <legend>File Upload</legend>
-                <input id="file_upload" type="file" name="upload" accept="image/jpeg,image/png" placeholder="image file"><br/>
-                <button class="btn_save" type="submit">Save</button>
+                <input id="file_upload" type="file" name="file" accept="image/jpeg,image/png" placeholder="image file"><br/>
+                <button class="btn_upload" type="submit">Upload</button>
                 <button class="btn_preview" type="button">Preview</button>
             </fieldset>
         </form>

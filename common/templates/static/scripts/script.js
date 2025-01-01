@@ -28,7 +28,7 @@ function loadAddressInIframe(eventElement) {
     // set source property of iframe
     const preview = document.getElementById("iframe_preview");
     preview.setAttribute("src", address);
-    showSnackbar('Preview website for ' + app_name);
+    toast('Preview ' + app_name);
     _update_address(address);
 }
 
@@ -49,38 +49,91 @@ function loadImageInIframe(eventElement) {
         };
         // Tell the reader to start reading asynchrounously
         reader.readAsDataURL(file);
-        showSnackbar('Show image preview');
+        toast('Show image preview');
     } else {
-        showSnackbar('No Image selected');
+        toast('No Image selected');
     }
     _update_address('');
 }
 
-function showSnackbar(message) {
-    const snackbar = document.getElementById('snackbar');
-    snackbar.innerHTML = message;
-    snackbar.className = 'show';
+function toast(message) {
+    const el = document.getElementById('toast');
+    el.innerHTML = message;
+    el.className = 'show';
     setTimeout(function() {
-        snackbar.className = snackbar.className.replace("show", "");
+        el.className = el.className.replace("show", "");
     }, 3000);
+}
+
+function submit(button, form, endpoint) {
+    button.addEventListener('click', async function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        var formData = (form) ? new FormData(form) : {};
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { Accept: 'application/json' },
+                body: formData
+            });
+            const result = await response.json();
+
+            if (response.ok) {
+                toast(`Success: ${result.message}`);
+            } else {
+                toast(`Error: ${result.detail}`);
+            }
+        } catch (error) {
+            toast(`Error: ${error.message}`);
+        }
+    });
+}
+
+function upload(button, form, endpoint) {
+    button.addEventListener('click', async function(event) {
+        event.preventDefault();
+        var file = document.getElementById("file_upload").files[0];
+        if (file) {
+            const formData = new FormData(form);
+            try {
+                const response = await fetch(endpoint, {
+                  method: "POST",
+                  body: formData,
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    toast(`Success: ${result.message}`);
+                } else {
+                    toast(`Error: ${result.detail}`);
+                }
+            } catch (error) {
+                toast(`Error: ${error.message}`);
+            }
+        } else {
+            toast('No Image selected.')
+        }
+    });
 }
 
 // wait for document is ready
 document.addEventListener('DOMContentLoaded', function(event) {
-    // get all preview buttons
-    var elements = document.getElementsByClassName("btn_preview");
-    // loop over all preview buttons and attach an event
-    for (var i = 0; i < elements.length; i++) {
-        elements[i].addEventListener('click', function(event) {
+    // app preview
+    document.querySelectorAll("form.app .btn_preview").forEach(el => {
+        el.addEventListener('click', function(event) {
             var currElement = event.target;
-            // special case for the file upload. Not nice but it works..
-            if (currElement.parentNode.querySelectorAll("input").length == 1) {
-                loadImageInIframe(currElement);
-            } else {
-                loadAddressInIframe(currElement);
-            }
-        }, true);
-    }
-    /* snackbar */
-
-})
+            loadAddressInIframe(currElement);
+        });
+    });
+    // app settings update
+    document.querySelectorAll("form.app .btn_save").forEach(el => {
+        const form = el.parentNode;  //closest('form');
+        const app_id = form.querySelector('input[name="app_id"]').value;
+        submit(el, form, '/apps/' + app_id);
+    });
+    document.querySelector("form.image_upload .btn_preview").addEventListener("click", function(event) {
+        loadImageInIframe(event.target);
+    });
+    upload(document.querySelector("form.image_upload .btn_upload"), document.querySelector("form.image_upload"), "/upload")
+    submit(document.querySelector("form.general .btn_save"), document.querySelector("form.general"), "/general/save");
+    submit(document.querySelector("form.general .btn_update"), null, "/general/update");
+});
