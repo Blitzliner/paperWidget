@@ -9,7 +9,7 @@ logger = utils.getLogger()
 @utils.timing
 def send(path):
     img = read_image(path=path, bit_depth=1)
-    rects = get_shapes(img=img, slicer=SliceOptions.SLICE_RECTS_OPT_INLINE, value=1)
+    rects = get_shapes(img=img, slicer=SliceOptions.SLICE_RECTS_OPT, value=1)  # _INLINE, value=1)
     baudrate = 115200  # bits/s
     command_length = 17 * 8  # bits
     cost = (command_length * len(rects)) / baudrate
@@ -27,7 +27,7 @@ def send(path):
             paper.send(FillRectangle(x1=rect[0], y1=rect[1], x2=rect[2], y2=rect[3]))
             if idx % 1000 == 0:
                 logger.info(f'Send {idx}/{len(rects)}')
-        paper.send(RefreshAndUpdate())
+        paper.send(RefreshAndUpdate())  # does this take approx 8s?
         paper.read_responses()
 
 

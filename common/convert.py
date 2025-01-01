@@ -17,7 +17,8 @@ class SliceOptions:
 
 
 @timing
-def read_image(path: str, target_width: int = 800, target_height: int = 600, bit_depth: int = 2, to_file: bool = False) -> np.ndarray:
+def read_image(path: str, target_width: int = 800, target_height: int = 600, bit_depth: int = 2,
+               to_file: bool = False) -> np.ndarray:
     if bit_depth not in [1, 2]:
         raise ValueError(f'Bit depth must be 1 or 2 but values is {bit_depth}')
     if not os.path.isfile(path):
@@ -164,7 +165,7 @@ def _slice_image_to_rect_opt(grid: list, value: int) -> list:
         row_e -= 1
 
         # Expand rightward for all rows in the range
-        col_e = col
+        col_e = col + 1
         # do not check for visited in order to reduce rectangles
         while col_e < cols and all(grid[row_][col_e] == value for row_ in range(row, row_e + 1)):
             for row_ in range(row, row_e + 1):
@@ -218,11 +219,18 @@ def _slice_image_to_rect_opt_inline(grid: list, value: int) -> list:
 
 if __name__ == '__main__':
     img = read_image(path='example.jpg', bit_depth=1)
-    get_shapes(img=img, slicer=SliceOptions.SLICE_LINES)
-    get_shapes(img=img, slicer=SliceOptions.SLICE_LINES_OPT)
-    get_shapes(img=img, slicer=SliceOptions.SLICE_RECTS)
-    get_shapes(img=img, slicer=SliceOptions.SLICE_RECTS_OPT)
-    get_shapes(img=img, slicer=SliceOptions.SLICE_RECTS_OPT_INLINE)
+    options = list(filter(lambda a: not a.startswith('__'), dir(SliceOptions)))
+    #img = np.array([[0, 0, 0, 1],
+    #                [0, 0, 0, 1],
+    #                [0, 1, 1, 1],
+    #                [0, 0, 1, 1]])
+    #shapes = get_shapes(img=img, slicer=SliceOptions.SLICE_RECTS_OPT_INLINE)
+    #for shape in shapes:
+    #    print(f'x1: {shape[0]} y1: {shape[1]} x2: {shape[2]} y2: {shape[3]} ')
+    #exit()
+    #print(options)
+    for opt in options:
+        get_shapes(img=img, slicer=opt)
 
     # import cProfile
     # cProfile.run("send('example.jpg')")  # 0.15 s
