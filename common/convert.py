@@ -56,7 +56,7 @@ def read_image(path: str, target_width: int = 800, target_height: int = 600, bit
 
 @timing
 def get_shapes(img: np.ndarray, slicer: str, value: int = 0):
-    logger.info(f'Slice Image with size {img.shape}')
+    # logger.info(f'Slice Image with size {img.shape}')
     if slicer in [SliceOptions.SLICE_LINES_OPT, SliceOptions.SLICE_RECTS_OPT, SliceOptions.SLICE_RECTS_OPT_INLINE]:
         if isinstance(img, np.ndarray):
             img = img.tolist()
@@ -73,7 +73,7 @@ def get_shapes(img: np.ndarray, slicer: str, value: int = 0):
     else:
         raise Exception(f'Slicer {slicer} not supported.')
 
-    logger.info(f'Sliced Image into {len(rects)} rects')
+    logger.info(f'{slicer} sliced into {len(rects)} rects')
 
     if len(rects) > 40000:
         logger.warning(F'Image is too detailed. Detected ({len(rects)}) lines. Limit to 40000.')

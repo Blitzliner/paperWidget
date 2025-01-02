@@ -9,7 +9,6 @@ logger = utils.getLogger()
 @utils.timing
 def send(path):
     img = read_image(path=path, bit_depth=2)
-    rects = get_shapes(img=img, slicer=SliceOptions.SLICE_RECTS_OPT_INLINE, value=0)
     baudrate = 115200  # bits/s
     command_length = 17 * 8  # bits
 
