@@ -7,8 +7,8 @@ logger = utils.getLogger()
 
 
 @utils.timing
-def send(path):
-    img = read_image(path=path, bit_depth=2)
+def send(path: str, bit_depth: int = 2):
+    img = read_image(path=path, bit_depth=bit_depth)
     baudrate = 115200  # bits/s
     command_length = 17 * 8  # bits
 
@@ -16,7 +16,10 @@ def send(path):
         paper.send(Handshake())
         time.sleep(0.1)
         paper.send(SetCurrentDisplayRotation(SetCurrentDisplayRotation.FLIP))
-        colors = {0: SetPallet.BLACK, 1: SetPallet.DARK_GRAY, 2: SetPallet.LIGHT_GRAY}  # , 3: SetPallet.WHITE}
+        if bit_depth == 2:
+            colors = {0: SetPallet.BLACK, 1: SetPallet.DARK_GRAY, 2: SetPallet.LIGHT_GRAY}  # , 3: SetPallet.WHITE}
+        else:
+            colors = {0: SetPallet.BLACK}
         for value, color in colors.items():
             rects = get_shapes(img=img, slicer=SliceOptions.SLICE_RECTS_OPT_INLINE, value=value)
             logger.info(f'Image will take approx. {(command_length * len(rects)) / baudrate:.3f} s')

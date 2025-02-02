@@ -16,7 +16,7 @@ def update(image_path=""):
         logger.info("Update Display with image path")
 
         if not sys.platform.startswith('win'):
-            epaper.send(image_path)
+            epaper.send(image_path, bit_depth=2)
         else:
             logger.error("Sending to e-paper is yet not supported on Windows")
     else:
@@ -26,7 +26,7 @@ def update(image_path=""):
             image_path = os.path.join(os.path.dirname(__file__), "snapshot.png") # is used to temporary store a image
             snapshot.snap(app.address, app.parameter, 600, 800, image_path)
             if not sys.platform.startswith('win'):
-                epaper.send(image_path)
+                epaper.send(image_path, bit_depth=1)
             else:
                 logger.error("Sending to e-paper is yet not supported on Windows")
 
