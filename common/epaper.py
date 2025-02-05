@@ -19,7 +19,7 @@ def send(path: str, bit_depth: int = 2):
         if bit_depth == 2:
             colors = {0: SetPallet.BLACK, 1: SetPallet.DARK_GRAY, 2: SetPallet.LIGHT_GRAY}  # , 3: SetPallet.WHITE}
         else:
-            colors = {0: SetPallet.BLACK}
+            colors = {0: SetPallet.DARK_GRAY}
         for value, color in colors.items():
             rects = get_shapes(img=img, slicer=SliceOptions.SLICE_RECTS_OPT_INLINE, value=value)
             logger.info(f'Image will take approx. {(command_length * len(rects)) / baudrate:.3f} s')
